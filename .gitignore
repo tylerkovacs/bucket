@@ -1,0 +1,6 @@
+TODO
+*.swp
+*.gem
+.bundle
+coverage
+pkg
