@@ -6,7 +6,6 @@ require 'rake/testtask'
 if ENV['CI_REPORTS']
  system("cp spec/ci.spec.opts spec/spec.opts")
 end
-
 gem 'ci_reporter'
 require 'ci/reporter/rake/rspec'
 

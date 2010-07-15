@@ -30,6 +30,16 @@ describe Bucket::Test do
         @test.name.should == :new_test_name
       end
 
+      it 'should not allow multiple tests with the same name' do
+        lambda {
+          @test2 = Bucket::Test.from_string <<-EOF
+            create_bucket_test :test_name do
+              variations [1, 2, 3]
+            end
+          EOF
+        }.should raise_error(Bucket::Test::DuplicateTestNameException)
+      end
+
       it 'should allow the name to be specified within the block' do
         new_test = Bucket::Test.from_string <<-EOF
           create_bucket_test :new_test do

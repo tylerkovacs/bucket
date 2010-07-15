@@ -1,5 +1,6 @@
 class Bucket
   class Test
+    class DuplicateTestNameException < StandardError; end
     class UnknownTestException < StandardError; end
     class InvalidTestConfigurationException < StandardError; end
 
@@ -131,7 +132,14 @@ class Bucket
         test.instance_eval(&block)
         test.name(name) if name
         test.validate
+
+        if @@tests[test.name]
+          raise Bucket::Test::DuplicateTestNameException, 
+            "test named #{name} already exists"
+        end
+
         @@tests[test.name] = test
+
         test
       end
 
