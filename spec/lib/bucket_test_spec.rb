@@ -30,8 +30,14 @@ describe Bucket::Test do
         @test.name.should == :new_test_name
       end
 
-      it 'should return an encoded name' do
-        @test.encoded_name.should === "bucket_test_4fce0bb2"
+      it 'should return an cookie name of 20 characters' do
+        @test.cookie_name.should == "bucket_test_4fce0bb2"
+        @test.cookie_name.length.should == 20
+      end
+
+      it 'should return a cookie name of 8 characters' do
+        @test.encoded_name.should == "4fce0bb2"
+        @test.encoded_name.length.should == 8
       end
 
       it 'should not allow multiple tests with the same name' do

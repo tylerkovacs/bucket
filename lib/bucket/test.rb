@@ -123,6 +123,10 @@ class Bucket
       self.class.encoded_name(name)
     end
 
+    def cookie_name
+      self.class.cookie_name(name)
+    end
+
     class << self
       def get(name)
         @@tests[name]
@@ -185,8 +189,12 @@ class Bucket
         @@tests.clear
       end
 
+      def cookie_name(name)
+        "bucket_test_#{encoded_name(name)}"
+      end
+
       def encoded_name(name)
-        "bucket_test_#{Digest::MD5.hexdigest(name.to_s)[0,8]}"
+        Digest::MD5.hexdigest(name.to_s)[0,8]
       end
 
       def cookie_expires
