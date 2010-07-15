@@ -246,6 +246,11 @@ describe Bucket::Test do
       @test.variations_include?('2').should == 2
     end
 
+    it 'should return a value if value as symbol is included' do
+      @test.variations ['one']
+      @test.variations_include?(:one).should == 'one'
+    end
+
     it 'should return nil if value is not included' do
       @test.variations_include?(7).should be_nil
     end

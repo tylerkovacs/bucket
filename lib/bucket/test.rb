@@ -49,6 +49,7 @@ class Bucket
     def variations_include?(value)
       variations.each do |v|
         return v if (v == value || v.to_s == value)
+        return v if (v.respond_to?(:to_sym) && v.to_sym == value)
       end
 
       return nil
