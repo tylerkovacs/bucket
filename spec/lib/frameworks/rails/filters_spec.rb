@@ -50,10 +50,10 @@ describe Bucket::Frameworks::Rails::Filters do
 
       persist_bucket_state
 
-      cookie1 = cookies[@test1.encoded_name]
+      cookie1 = cookies[@test1.cookie_name]
       @test1.variations.should include(cookie1[:value])
 
-      cookie2 = cookies[@test2.encoded_name]
+      cookie2 = cookies[@test2.cookie_name]
       @test2.variations.should include(cookie2[:value])
     end
   end
@@ -75,14 +75,14 @@ describe Bucket::Frameworks::Rails::Filters do
   describe 'test_assignment_through_url_override' do
     it 'should assign variation based on a url parameter' do
       Bucket.assigned_variations[@test1.name].should be_nil
-      params[@test1.encoded_name] = 2
+      params[@test1.cookie_name] = 2
       test_assignment_through_url_override
       Bucket.assigned_variations[@test1.name].should == 2
     end
 
     it 'should override a value if already set' do
       Bucket.assigned_variations[@test1.name] = 1
-      params[@test1.encoded_name] = 2
+      params[@test1.cookie_name] = 2
       test_assignment_through_url_override
       Bucket.assigned_variations[@test1.name].should == 2
     end
