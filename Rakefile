@@ -3,7 +3,6 @@ require 'rake'
 require 'rake/testtask'
 
 # Required for Hudson to show build log
-require 'rubygems'
 gem 'ci_reporter'
 require 'ci/reporter/rake/rspec'
 
