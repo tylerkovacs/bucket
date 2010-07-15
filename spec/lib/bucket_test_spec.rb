@@ -6,7 +6,7 @@ describe Bucket::Test do
     Bucket.clear!
 
     @definition =<<-EOF
-      bucket_test :test_name do
+      create_bucket_test :test_name do
         variations [1, 2, 3]
       end
     EOF
@@ -24,36 +24,101 @@ describe Bucket::Test do
   end
 
   describe 'attributes' do
-    it 'should accept a string for the name attribute' do
-      @test.name :new_test_name
-      @test.name.should == :new_test_name
+    context 'name' do
+      it 'should accept a symbol for the name attribute' do
+        @test.name :new_test_name
+        @test.name.should == :new_test_name
+      end
+
+      it 'should allow the name to be specified within the block' do
+        new_test = Bucket::Test.from_string <<-EOF
+          create_bucket_test :new_test do
+            name :new_test
+            variations [1, 2, 3]
+          end
+        EOF
+
+        new_test.name.should == :new_test
+      end
+
+      it 'should allow the name to be passed in as the first argument' do
+        new_test = Bucket::Test.from_string <<-EOF
+          create_bucket_test :new_test do
+            variations [1, 2, 3]
+          end
+        EOF
+
+        new_test.name.should == :new_test
+        new_test.variations.should == [1, 2, 3]
+      end
     end
 
-    it 'should accept an array for the variations attribute' do
-      @test.variations [1, 2, 3, 4]
-      @test.variations.should == [1, 2, 3, 4]
-    end
+    context 'variations' do
+      it 'should accept an array for the variations attribute' do
+        @test.variations [1, 2, 3, 4]
+        @test.variations.should == [1, 2, 3, 4]
+      end
 
-    it 'should allow the name to be specified within the block' do
-      new_test = Bucket::Test.from_string <<-EOF
-        bucket_test :new_test do
-          name :new_test
-          variations [1, 2, 3]
-        end
-      EOF
+      it 'should accept an array of hashes for the variations attribute' do
+        @test.variations [
+          {:value => 1},
+          {:value => 2}
+        ]
+        @test.variations.should == [1, 2]
+      end
 
-      new_test.name.should == :new_test
-    end
+      it 'should support a mix of hash and non-hash variations' do
+        @test.variations [
+          {:value => 1},
+          2
+        ]
+        @test.variations.should == [1, 2]
+      end
 
-    it 'should allow the name to be passed in as the first argument' do
-      new_test = Bucket::Test.from_string <<-EOF
-        bucket_test :new_test do
-          variations [1, 2, 3]
-        end
-      EOF
+      it 'should error if a hash variation is missing a :value' do
+        lambda {
+          @test.variations [
+            {}
+          ]
+        }.should raise_error(Bucket::Test::InvalidTestConfigurationException)
+      end
 
-      new_test.name.should == :new_test
-      new_test.variations.should == [1, 2, 3]
+      it 'should not allow missing variations' do
+        lambda {
+          test = Bucket::Test.from_string <<-EOF
+            create_bucket_test :bad do
+            end
+          EOF
+        }.should raise_error(Bucket::Test::InvalidTestConfigurationException)
+      end
+
+      it 'should not allow non-Array variations' do
+        lambda {
+          test = Bucket::Test.from_string <<-EOF
+            create_bucket_test :bad do
+              variations({1 => 20})
+            end
+          EOF
+        }.should raise_error(Bucket::Test::InvalidTestConfigurationException)
+      end
+
+      it 'should not allow empty variations' do
+        lambda {
+          test = Bucket::Test.from_string <<-EOF
+            create_bucket_test :bad do
+              variations []
+            end
+          EOF
+        }.should raise_error(Bucket::Test::InvalidTestConfigurationException)
+      end
+
+      it 'should allow weights to be assigned to variations' do
+        @test.variations [
+          {:value => 1, :weight => 2},
+          {:value => 2}
+        ]
+        @test.instance_eval("@weights[0]").should == 2.0
+      end
     end
   end
 
@@ -95,19 +160,42 @@ describe Bucket::Test do
   end
 
   describe 'assign_variation' do
-    it 'should pick an variation at random' do
+    it 'should pick a variation at random' do
       variation = @test.assign_variation
       variation.should_not be_nil
       @test.variations.should include(variation)
     end
 
-    it 'should pick an variation using an even distribution' do
+    it 'should pick a variation using an even distribution by default' do
       frequencies = Hash.new(0)
       1000.times { frequencies[@test.assign_variation_uncached] += 1}
-
       frequencies.values.each do |val|
         val.should be_close(333, 150) 
       end
+    end
+
+    it 'should pick a variation using a weighted distribution if configured' do
+      @test.variations [
+        {:value => 1, :weight => 2},
+        {:value => 2}
+      ]
+      frequencies = Hash.new(0)
+      1000.times { frequencies[@test.assign_variation_uncached] += 1}
+      frequencies[1].should be_close(666, 150)
+      frequencies[2].should be_close(333, 150)
+    end
+
+    it 'should support weighted distribution with any number of values' do
+      @test.variations [
+        {:value => 1, :weight => 0.5},
+        {:value => 2},
+        {:value => 3, :weight => 3.5}
+      ]
+      frequencies = Hash.new(0)
+      1000.times { frequencies[@test.assign_variation_uncached] += 1}
+      frequencies[1].should be_close(100, 150)
+      frequencies[2].should be_close(200, 150)
+      frequencies[3].should be_close(700, 150)
     end
 
     it 'should accept a value when passed in' do

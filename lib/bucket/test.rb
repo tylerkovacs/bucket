@@ -1,6 +1,7 @@
 class Bucket
   class Test
     class UnknownTestException < StandardError; end
+    class InvalidTestConfigurationException < StandardError; end
 
     # Class variable storing all defined tests.
     @@tests = {}
@@ -10,7 +11,7 @@ class Bucket
     # The Bucket::Test DSL defines tests.
     #
     # Example:
-    # bucket_test do
+    # create_bucket_test do
     #   name 'color test'
     #   variations ['red', 'green', 'blue']
     # end
@@ -26,6 +27,8 @@ class Bucket
         def #{attribute_name}(value=nil)
           if value
             @attributes['#{attribute_name}'] = value
+            method = "validate_#{attribute_name}_attribute"
+            send(method) if respond_to?(method)
           else
             @attributes['#{attribute_name}']
           end
@@ -35,6 +38,7 @@ class Bucket
 
     def initialize
       @attributes = {}
+      @weights = Hash.new(1)
     end
 
     def assigned_variation
@@ -54,7 +58,51 @@ class Bucket
     end
 
     def assign_variation_uncached
-      variations[rand(variations.length)]
+      if !@weights.empty?
+        random = (0..variations.length-1).to_a.inject(0.0) do |t,i| 
+          t + @weights[i]
+        end * rand
+
+        (0..variations.length-1).to_a.map{|i| [i, @weights[i]]}.each do |i,w|
+          return variations[i] if w >= random
+          random -= w
+        end
+      else
+        variations[rand(variations.length)]
+      end
+    end
+
+    def validate
+      if !variations
+        raise InvalidTestConfigurationException, "variations missing"
+      end
+    end
+
+    def validate_variations_attribute
+      if !variations
+        raise InvalidTestConfigurationException, "variations missing"
+      elsif !variations.is_a?(Array)
+        raise InvalidTestConfigurationException, "variations not an Array"
+      elsif variations.empty?
+        raise InvalidTestConfigurationException, "variations empty"
+      end
+
+      _variations, @attributes['variations'] = @attributes['variations'], []
+
+      _variations.each_with_index do |variation, index|
+        if variation.is_a?(Hash)
+          if !variation.has_key?(:value)
+            raise InvalidTestConfigurationException, "variations missing :value"
+          end
+          @attributes['variations'] << variation[:value]
+
+          if variation[:weight]
+            @weights[index] = variation[:weight].to_f
+          end
+        else
+          @attributes['variations'] << variation
+        end
+      end
     end
 
     class << self
@@ -74,7 +122,7 @@ class Bucket
         instance_eval(data)
       end
 
-      def bucket_test(name=nil, &block)
+      def create_bucket_test(name=nil, &block)
         Test.add_test(name, &block)
       end
 
@@ -82,6 +130,7 @@ class Bucket
         test = self.new
         test.instance_eval(&block)
         test.name(name) if name
+        test.validate
         @@tests[test.name] = test
         test
       end

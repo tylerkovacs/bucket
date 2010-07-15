@@ -7,7 +7,7 @@ class Bucket
 
           test = if !test
             if block_given?
-              Bucket::Test.bucket_test(name, &block)
+              Bucket::Test.create_bucket_test(name, &block)
             else
               raise Bucket::Test::UnknownTestException
             end

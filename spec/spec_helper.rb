@@ -14,7 +14,6 @@ require File.join(File.dirname(__FILE__), '..', 'lib', 'bucket')
 
 Spec::Runner.configure do |config|
   config.before(:each) { }
-
   config.before(:all) { }
   config.after(:each) { }
 end

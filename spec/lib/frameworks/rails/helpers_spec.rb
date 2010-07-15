@@ -8,7 +8,7 @@ describe Bucket::Frameworks::Rails::Helpers do
   before(:each) do
     Bucket.clear!
     @test = Bucket::Test.from_string <<-EOF
-      bucket_test :test_name do
+      create_bucket_test :test_name do
         variations [1, 2, 3]
       end
     EOF

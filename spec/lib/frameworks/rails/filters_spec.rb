@@ -10,12 +10,12 @@ describe Bucket::Frameworks::Rails::Filters do
     cookies.clear
 
     @test1 = Bucket::Test.from_string <<-EOF
-      bucket_test :test_1 do
+      create_bucket_test :test_1 do
         variations [1, 2, 3]
       end
     EOF
     @test2 = Bucket::Test.from_string <<-EOF
-      bucket_test :test_2 do
+      create_bucket_test :test_2 do
         variations [4, 5, 6]
       end
     EOF
