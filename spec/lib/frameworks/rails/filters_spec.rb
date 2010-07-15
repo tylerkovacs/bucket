@@ -8,6 +8,7 @@ describe Bucket::Frameworks::Rails::Filters do
   before(:each) do
     Bucket.clear!
     cookies.clear
+    params.clear
 
     @test1 = Bucket::Test.from_string <<-EOF
       create_bucket_test :test_1 do
@@ -49,10 +50,10 @@ describe Bucket::Frameworks::Rails::Filters do
 
       persist_bucket_state
 
-      cookie1 = cookies[Bucket::Test.cookie_name(@test1.name)]
+      cookie1 = cookies[@test1.encoded_name]
       @test1.variations.should include(cookie1[:value])
 
-      cookie2 = cookies[Bucket::Test.cookie_name(@test2.name)]
+      cookie2 = cookies[@test2.encoded_name]
       @test2.variations.should include(cookie2[:value])
     end
   end
@@ -68,6 +69,15 @@ describe Bucket::Frameworks::Rails::Filters do
 
       Bucket::Test.get(@test1.name).assigned_variation.should == variation1 
       Bucket::Test.get(@test2.name).assigned_variation.should == variation2 
+    end
+  end
+
+  describe 'test_assignment_through_url_override' do
+    it 'should assign variation based on a url parameter' do
+      Bucket.assigned_variations[@test1.name].should be_nil
+      params[@test1.encoded_name] = 2
+      test_assignment_through_url_override
+      Bucket.assigned_variations[@test1.name].should == 2
     end
   end
 end

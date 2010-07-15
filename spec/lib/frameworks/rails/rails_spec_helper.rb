@@ -3,6 +3,11 @@ def cookies
   @cookies
 end
 
+def params
+  @params ||= {}
+  @params
+end
+
 class ActiveSupport
   class SecureRandom
     def self.base64(base)

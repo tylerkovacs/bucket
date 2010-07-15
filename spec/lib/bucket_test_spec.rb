@@ -30,6 +30,10 @@ describe Bucket::Test do
         @test.name.should == :new_test_name
       end
 
+      it 'should return an encoded name' do
+        @test.encoded_name.should === "bucket_test_4fce0bb20fdf6f5d56f900d7782a5d90"
+      end
+
       it 'should not allow multiple tests with the same name' do
         lambda {
           @test2 = Bucket::Test.from_string <<-EOF
@@ -270,7 +274,7 @@ describe Bucket::Test do
   end
 
   describe 'create_bucket_test' do
-    it 'shouldnot select a variation' do
+    it 'should not select a variation' do
       test = Bucket::Test.create_bucket_test :new_test_name do
         variations [1, 2, 3, 4]
       end

@@ -119,6 +119,10 @@ class Bucket
       @attributes['variations'] << value
     end
 
+    def encoded_name
+      self.class.encoded_name(name)
+    end
+
     class << self
       def get(name)
         @@tests[name]
@@ -181,7 +185,7 @@ class Bucket
         @@tests.clear
       end
 
-      def cookie_name(name)
+      def encoded_name(name)
         "bucket_test_#{Digest::MD5.hexdigest(name.to_s)}"
       end
 

@@ -5,6 +5,7 @@ class Bucket
         def clear_and_restore_bucket_state
           Bucket.clear_all_but_tests!
           restore_bucket_state
+          test_assignment_through_url_override
         end
 
         def persist_bucket_state
@@ -22,7 +23,7 @@ class Bucket
 
         def persist_bucket_test_assignment(expiry_timestamp)
           Bucket.assigned_variations.each do |test_name, variation|
-            cookies[Bucket::Test.cookie_name(test_name)] = {
+            cookies[Bucket::Test.encoded_name(test_name)] = {
               :value => variation,
               :expires => expiry_timestamp
             }
@@ -36,7 +37,7 @@ class Bucket
 
         def restore_bucket_test_assignment
           Bucket::Test.all.each do |test_name, test|
-            value = cookies[Bucket::Test.cookie_name(test_name)]
+            value = cookies[Bucket::Test.encoded_name(test_name)]
             value = value[:value] if value.is_a?(Hash)
             test.assign_variation(value) if value
           end
@@ -45,6 +46,13 @@ class Bucket
         def bucket_participant
           Bucket.participant = cookies['bucket_participant'] || 
             ActiveSupport::SecureRandom.base64(10)
+        end
+
+        def test_assignment_through_url_override
+          Bucket::Test.all.each do |test_name, test|
+            value = params[Bucket::Test.encoded_name(test_name)]
+            test.assign_variation(value) if value
+          end
         end
       end
     end
