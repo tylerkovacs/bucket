@@ -127,7 +127,7 @@ class Bucket
         instance_eval(data)
       end
 
-      def create_bucket_test(name=nil, &block)
+      def create_bucket_test(name, &block)
         Test.add_test(name, &block)
       end
 
