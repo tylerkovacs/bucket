@@ -232,7 +232,7 @@ describe Bucket::Test do
     end
   end
 
-  describe 'variation' do
+  describe 'assigned variations' do
     it 'should return the selected variation' do
       variation = @test.assign_variation
       variation.should_not be_nil
@@ -242,6 +242,35 @@ describe Bucket::Test do
     it 'should not change between calls' do
       variation = @test.assigned_variation
       10.times { @test.assigned_variation.should == variation }
+    end
+  end
+
+  describe 'bucket_test' do
+    it 'should return the test with the matched name' do
+      test = Bucket::Test.bucket_test :test_name
+      test.should == @test
+    end
+
+    it 'should create and return a new test if no match' do
+      Bucket::Test.number_of_tests.should == 1
+      Bucket::Test.bucket_test :new_test_name do
+        variations [1, 2, 3, 4]
+      end
+      Bucket::Test.number_of_tests.should == 2
+      test = Bucket::Test.get(:new_test_name)
+      test.variations.should == [1, 2, 3, 4]
+    end
+
+    it 'should raise an exception if no match and no block' do
+      lambda {
+        test = Bucket::Test.bucket_test :non_existent
+      }.should raise_error(Bucket::Test::UnknownTestException)
+    end
+
+    it 'should select a variation' do
+      test = Bucket::Test.bucket_test :test_name
+      test.assigned_variation.should_not be_nil
+      test.variations.should include(test.assigned_variation)
     end
   end
 end
