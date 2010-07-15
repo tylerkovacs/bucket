@@ -131,7 +131,7 @@ class Bucket
         Test.add_test(name, &block)
       end
 
-      def add_test(name=nil, &block)
+      def add_test(name, &block)
         test = self.new
         test.instance_eval(&block)
         test.name(name) if name
