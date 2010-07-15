@@ -69,6 +69,18 @@ describe Bucket::Test do
         @test.variations.should == [1, 2, 3, 4]
       end
 
+      it 'should accept nil as a variation value' do
+        lambda {
+          @test.variations [1, nil]
+        }.should_not raise_error
+      end
+
+      it 'should accept false as a variation value' do
+        lambda {
+          @test.variations [1, false]
+        }.should_not raise_error
+      end
+
       it 'should accept an array of hashes for the variations attribute' do
         @test.variations [
           {:value => 1},

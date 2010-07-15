@@ -46,9 +46,9 @@ class Bucket
       Bucket.assigned_variations[name]
     end
 
-    def assign_variation(variation=nil)
-      if !Bucket.assigned_variations[name]
-        if variation && variations.include?(variation)
+    def assign_variation(variation=:magic_default_value)
+      if !Bucket.assigned_variations.has_key?(name)
+        if variations.include?(variation)
           Bucket.assigned_variations[name] = variation
         else
           Bucket.assigned_variations[name] = assign_variation_uncached
@@ -95,15 +95,19 @@ class Bucket
           if !variation.has_key?(:value)
             raise InvalidTestConfigurationException, "variations missing :value"
           end
-          @attributes['variations'] << variation[:value]
+          add_variation(variation[:value])
 
           if variation[:weight]
             @weights[index] = variation[:weight].to_f
           end
         else
-          @attributes['variations'] << variation
+          add_variation(variation)
         end
       end
+    end
+
+    def add_variation(value)
+      @attributes['variations'] << value
     end
 
     class << self
