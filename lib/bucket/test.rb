@@ -186,7 +186,7 @@ class Bucket
       end
 
       def encoded_name(name)
-        "bucket_test_#{Digest::MD5.hexdigest(name.to_s)}"
+        "bucket_test_#{Digest::MD5.hexdigest(name.to_s)[0,8]}"
       end
 
       def cookie_expires

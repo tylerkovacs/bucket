@@ -31,7 +31,7 @@ describe Bucket::Test do
       end
 
       it 'should return an encoded name' do
-        @test.encoded_name.should === "bucket_test_4fce0bb20fdf6f5d56f900d7782a5d90"
+        @test.encoded_name.should === "bucket_test_4fce0bb2"
       end
 
       it 'should not allow multiple tests with the same name' do
