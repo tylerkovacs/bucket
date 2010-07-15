@@ -225,10 +225,29 @@ describe Bucket::Test do
       variation.should == 2
     end
 
+    it 'should accept a value when passed in as a string' do
+      variation = @test.assign_variation('2')
+      variation.should == 2
+    end
+
     it 'should not accept a value if not a valid variation' do
       variation = @test.assign_variation(-1)
       variation.should_not == -1
       @test.variations.should include(variation)
+    end
+  end
+
+  describe 'variations_include' do
+    it 'should return value if value is included' do
+      @test.variations_include?(2).should == 2
+    end
+
+    it 'should return value if value as string is included' do
+      @test.variations_include?('2').should == 2
+    end
+
+    it 'should return nil if value is not included' do
+      @test.variations_include?(7).should be_nil
     end
   end
 

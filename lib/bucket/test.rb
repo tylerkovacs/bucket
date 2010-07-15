@@ -46,9 +46,17 @@ class Bucket
       Bucket.assigned_variations[name]
     end
 
+    def variations_include?(value)
+      variations.each do |v|
+        return v if (v == value || v.to_s == value)
+      end
+
+      return nil
+    end
+
     def assign_variation(variation=:magic_default_value)
       if !Bucket.assigned_variations.has_key?(name)
-        if variations.include?(variation)
+        if variation = variations_include?(variation)
           Bucket.assigned_variations[name] = variation
         else
           Bucket.assigned_variations[name] = assign_variation_uncached
