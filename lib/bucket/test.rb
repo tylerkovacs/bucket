@@ -55,8 +55,8 @@ class Bucket
       return nil
     end
 
-    def assign_variation(variation=:magic_default_value)
-      if !Bucket.assigned_variations.has_key?(name)
+    def assign_variation(variation=:magic_default_value, options={})
+      if !Bucket.assigned_variations.has_key?(name) || options[:force]
         if variation = variations_include?(variation)
           Bucket.assigned_variations[name] = variation
         else

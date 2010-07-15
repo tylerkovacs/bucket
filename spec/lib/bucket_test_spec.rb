@@ -229,6 +229,20 @@ describe Bucket::Test do
       variation.should == 2
     end
 
+    it 'should not override a value if already set by default' do
+      variation = @test.assign_variation(2)
+      variation.should == 2
+      variation = @test.assign_variation(3)
+      variation.should == 2
+    end
+
+    it 'should override a value if already set by default using force' do
+      variation = @test.assign_variation(2)
+      variation.should == 2
+      variation = @test.assign_variation(3, {:force => true})
+      variation.should == 3
+    end
+
     it 'should accept a value when passed in as a string' do
       variation = @test.assign_variation('2')
       variation.should == 2

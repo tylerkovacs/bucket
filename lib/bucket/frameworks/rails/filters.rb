@@ -51,7 +51,7 @@ class Bucket
         def test_assignment_through_url_override
           Bucket::Test.all.each do |test_name, test|
             value = params[Bucket::Test.encoded_name(test_name)]
-            test.assign_variation(value) if value
+            test.assign_variation(value, {:force => true}) if value
           end
         end
       end

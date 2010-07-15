@@ -79,5 +79,12 @@ describe Bucket::Frameworks::Rails::Filters do
       test_assignment_through_url_override
       Bucket.assigned_variations[@test1.name].should == 2
     end
+
+    it 'should override a value if already set' do
+      Bucket.assigned_variations[@test1.name] = 1
+      params[@test1.encoded_name] = 2
+      test_assignment_through_url_override
+      Bucket.assigned_variations[@test1.name].should == 2
+    end
   end
 end
