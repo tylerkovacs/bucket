@@ -245,6 +245,15 @@ describe Bucket::Test do
     end
   end
 
+  describe 'create_bucket_test' do
+    it 'shouldnot select a variation' do
+      test = Bucket::Test.create_bucket_test :new_test_name do
+        variations [1, 2, 3, 4]
+      end
+      test.assigned_variation.should be_nil
+    end
+  end
+
   describe 'bucket_test' do
     it 'should return the test with the matched name' do
       test = Bucket::Test.bucket_test :test_name
