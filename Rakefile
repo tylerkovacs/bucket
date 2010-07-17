@@ -5,6 +5,7 @@ require 'rake/testtask'
 # Required for Hudson to show build log
 if ENV['CI_REPORTS']
  system("cp spec/ci.spec.opts spec/spec.opts")
+ puts `ruby -v`
 end
 gem 'ci_reporter'
 require 'ci/reporter/rake/rspec'
