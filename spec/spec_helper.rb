@@ -3,7 +3,6 @@ require "bundler"
 Bundler.setup
 
 require 'spec/autorun'
-require 'ruby-debug'
 
 # This file is copied to ~/spec when you run 'ruby script/generate rspec'
 # from the project root directory.
