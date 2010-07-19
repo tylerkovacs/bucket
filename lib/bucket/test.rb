@@ -62,6 +62,11 @@ class Bucket
         else
           Bucket.assigned_variations[name] = assign_variation_uncached
         end
+
+        unless options[:previously_assigned]
+          Bucket.assigned_variations_this_request[name] = 
+            Bucket.assigned_variations[name]
+        end
       end
 
       Bucket.assigned_variations[name]

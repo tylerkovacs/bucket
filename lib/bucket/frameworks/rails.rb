@@ -11,6 +11,6 @@ Bucket.config_path = File.join(RAILS_ROOT, "config", "bucket")
 # libraries under rails/ can be unit tests without pulling in the whole 
 # framework.
 ActionController::Base.send(:include, Bucket::Frameworks::Rails::Filters)
-ActionController::Base.send(:before_filter, :clear_and_restore_bucket_state)
-ActionController::Base.send(:after_filter, :persist_bucket_state)
+ActionController::Base.send(:before_filter, :bucket_before_filters)
+ActionController::Base.send(:after_filter, :bucket_after_filters)
 ActionController::Base.send(:helper, Bucket::Frameworks::Rails::Helpers)

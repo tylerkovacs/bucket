@@ -41,5 +41,11 @@ describe Bucket::Frameworks::Rails::Helpers do
       test.assigned_variation.should_not be_nil
       test.variations.should include(test.assigned_variation)
     end
+
+    it 'should record as being assigned in this request' do
+      Bucket.assigned_variations_this_request[@test.name].should be_nil
+      test = bucket_test :test_name
+      Bucket.assigned_variations_this_request[@test.name].should_not be_nil
+    end
   end
 end

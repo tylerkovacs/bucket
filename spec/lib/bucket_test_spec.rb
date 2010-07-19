@@ -198,6 +198,18 @@ describe Bucket::Test do
       @test.variations.should include(variation)
     end
 
+    it 'should record in assigned_variations_this_request by default' do
+      Bucket.assigned_variations_this_request[@test.name].should be_nil
+      variation = @test.assign_variation
+      Bucket.assigned_variations_this_request[@test.name].should == variation
+    end
+
+    it 'should not record in assigned_variations_this_request with previously_assigned argument' do
+      Bucket.assigned_variations_this_request[@test.name].should be_nil
+      variation = @test.assign_variation(1, {:previously_assigned => true})
+      Bucket.assigned_variations_this_request[@test.name].should be_nil
+    end
+
     it 'should pick a variation using an even distribution by default' do
       frequencies = Hash.new(0)
       1000.times { frequencies[@test.assign_variation_uncached] += 1}
