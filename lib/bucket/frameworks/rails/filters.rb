@@ -11,6 +11,7 @@ class Bucket
         end
 
         def bucket_clear_state
+          cookies[Bucket.new_assignments_cookie_name] = nil
           Bucket.clear_all_but_tests!
         end
 

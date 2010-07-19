@@ -22,6 +22,14 @@ describe Bucket::Frameworks::Rails::Filters do
     EOF
   end
 
+  describe 'bucket_clear_state' do
+    it 'should clear the new assignment cookie' do
+      cookies[Bucket.new_assignments_cookie_name] = 'foo'
+      bucket_before_filters
+      cookies[Bucket.new_assignments_cookie_name].should be_nil
+    end
+  end
+
   describe 'bucket_participant' do
     it 'should assign new bucket_participant if none exists' do 
       Bucket.participant.should be_nil
