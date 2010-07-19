@@ -51,7 +51,7 @@ class Bucket
         end
 
         def bucket_persist_assignments(expiry_timestamp)
-          Bucket.assigned_variations.each do |test_name, variation|
+          Bucket.assignments.each do |test_name, variation|
             cookies[Bucket::Test.cookie_name(test_name)] = {
               :value => variation,
               :expires => expiry_timestamp

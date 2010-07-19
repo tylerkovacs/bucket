@@ -198,16 +198,16 @@ describe Bucket::Test do
       @test.variations.should include(variation)
     end
 
-    it 'should record in assigned_variations_this_request by default' do
-      Bucket.assigned_variations_this_request[@test.name].should be_nil
+    it 'should record in assignments_this_request by default' do
+      Bucket.assignments_this_request[@test.name].should be_nil
       variation = @test.assign_variation
-      Bucket.assigned_variations_this_request[@test.name].should == variation
+      Bucket.assignments_this_request[@test.name].should == variation
     end
 
-    it 'should not record in assigned_variations_this_request with previously_assigned argument' do
-      Bucket.assigned_variations_this_request[@test.name].should be_nil
+    it 'should not record in assignments_this_request with previously_assigned argument' do
+      Bucket.assignments_this_request[@test.name].should be_nil
       variation = @test.assign_variation(1, {:previously_assigned => true})
-      Bucket.assigned_variations_this_request[@test.name].should be_nil
+      Bucket.assignments_this_request[@test.name].should be_nil
     end
 
     it 'should pick a variation using an even distribution by default' do

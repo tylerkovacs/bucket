@@ -4,15 +4,15 @@ class Bucket
   module Base
     @@config_path = File.join("config", "bucket")
     @@logger = Logger.new(STDOUT)
-    @@assigned_variations = {}
-    @@assigned_variations_this_request = {}
+    @@assignments = {}
+    @@assignments_this_request = {}
 
     ACCESSOR_NAMES = [
       :logger, 
       :config_path, 
       :participant,
-      :assigned_variations,
-      :assigned_variations_this_request
+      :assignments,
+      :assignments_this_request
     ]
   
     def self.included(base)
@@ -49,8 +49,8 @@ class Bucket
 
       def clear_all_but_tests!
         Bucket.participant = nil
-        Bucket.assigned_variations.clear
-        Bucket.assigned_variations_this_request.clear
+        Bucket.assignments.clear
+        Bucket.assignments_this_request.clear
       end
 
       def clear_tests!

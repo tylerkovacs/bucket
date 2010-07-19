@@ -43,7 +43,7 @@ class Bucket
     end
 
     def assigned_variation
-      Bucket.assigned_variations[name]
+      Bucket.assignments[name]
     end
 
     def variations_include?(value)
@@ -56,20 +56,19 @@ class Bucket
     end
 
     def assign_variation(variation=:magic_default_value, options={})
-      if !Bucket.assigned_variations.has_key?(name) || options[:force]
+      if !Bucket.assignments.has_key?(name) || options[:force]
         if variation = variations_include?(variation)
-          Bucket.assigned_variations[name] = variation
+          Bucket.assignments[name] = variation
         else
-          Bucket.assigned_variations[name] = assign_variation_uncached
+          Bucket.assignments[name] = assign_variation_uncached
         end
 
         unless options[:previously_assigned]
-          Bucket.assigned_variations_this_request[name] = 
-            Bucket.assigned_variations[name]
+          Bucket.assignments_this_request[name] = Bucket.assignments[name]
         end
       end
 
-      Bucket.assigned_variations[name]
+      Bucket.assignments[name]
     end
 
     def assign_variation_uncached

@@ -74,32 +74,32 @@ describe Bucket::Frameworks::Rails::Filters do
     end
 
     it 'should not record them as being assigned this request' do
-      Bucket.assigned_variations_this_request[@test1.name].should be_nil 
+      Bucket.assignments_this_request[@test1.name].should be_nil 
       bucket_restore_assignments
-      Bucket.assigned_variations_this_request[@test1.name].should be_nil 
+      Bucket.assignments_this_request[@test1.name].should be_nil 
     end
   end
 
   describe 'bucket_assignment_though_url_parameters' do
     it 'should assign variation based on a url parameter' do
-      Bucket.assigned_variations[@test1.name].should be_nil
+      Bucket.assignments[@test1.name].should be_nil
       params[@test1.cookie_name] = 2
       bucket_assignment_though_url_parameters
-      Bucket.assigned_variations[@test1.name].should == 2
+      Bucket.assignments[@test1.name].should == 2
     end
 
     it 'should override a value if already set' do
-      Bucket.assigned_variations[@test1.name] = 1
+      Bucket.assignments[@test1.name] = 1
       params[@test1.cookie_name] = 2
       bucket_assignment_though_url_parameters
-      Bucket.assigned_variations[@test1.name].should == 2
+      Bucket.assignments[@test1.name].should == 2
     end
 
     it 'should record them as being assigned this request' do
-      Bucket.assigned_variations_this_request[@test1.name].should be_nil
+      Bucket.assignments_this_request[@test1.name].should be_nil
       params[@test1.cookie_name] = 2
       bucket_assignment_though_url_parameters
-      Bucket.assigned_variations_this_request[@test1.name].should == 2
+      Bucket.assignments_this_request[@test1.name].should == 2
     end
   end
 end
