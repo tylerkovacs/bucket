@@ -63,7 +63,8 @@ describe Bucket::Frameworks::Rails::Filters do
       @test2.assign_variation
       bucket_after_filters
       cookie = cookies[Bucket.new_assignments_cookie_name]
-      cookie.should == [@test1.cookie_name, @test2.cookie_name].join(',')
+      expected = [@test1.cookie_name, @test2.cookie_name].sort
+      cookie.split(',').sort.should == expected
     end
   end
 
