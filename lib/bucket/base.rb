@@ -5,14 +5,18 @@ class Bucket
     @@config_path = File.join("config", "bucket")
     @@logger = Logger.new(STDOUT)
     @@assignments = {}
-    @@assignments_this_request = {}
+    @@new_assignments = {}
+    @@participant_cookie_name = 'bucket_participant'
+    @@new_assignments_cookie_name = 'bucket_atr'
 
     ACCESSOR_NAMES = [
       :logger, 
       :config_path, 
       :participant,
       :assignments,
-      :assignments_this_request
+      :new_assignments,
+      :participant_cookie_name,
+      :new_assignments_cookie_name
     ]
   
     def self.included(base)
@@ -50,7 +54,7 @@ class Bucket
       def clear_all_but_tests!
         Bucket.participant = nil
         Bucket.assignments.clear
-        Bucket.assignments_this_request.clear
+        Bucket.new_assignments.clear
       end
 
       def clear_tests!

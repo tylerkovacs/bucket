@@ -64,7 +64,7 @@ class Bucket
         end
 
         unless options[:previously_assigned]
-          Bucket.assignments_this_request[name] = Bucket.assignments[name]
+          Bucket.new_assignments[name] = Bucket.assignments[name]
         end
       end
 

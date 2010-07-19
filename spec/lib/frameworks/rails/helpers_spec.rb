@@ -43,9 +43,9 @@ describe Bucket::Frameworks::Rails::Helpers do
     end
 
     it 'should record as being assigned in this request' do
-      Bucket.assignments_this_request[@test.name].should be_nil
+      Bucket.new_assignments[@test.name].should be_nil
       test = bucket_test :test_name
-      Bucket.assignments_this_request[@test.name].should_not be_nil
+      Bucket.new_assignments[@test.name].should_not be_nil
     end
   end
 end

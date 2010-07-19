@@ -36,18 +36,19 @@ describe Bucket::Frameworks::Rails::Filters do
     end
   end
 
-  describe 'bucket_after_filters' do
+  describe 'bucket_persist_participant' do
     it 'should write the participant to a cookie' do
       cookies['bucket_participant'].should be_nil
       Bucket.participant = 1
       bucket_after_filters
       cookies['bucket_participant'][:value].should == 1
     end
+  end
 
+  describe 'bucket_persist_assignments' do
     it 'should write assignments to a cookie' do
       @test1.assign_variation
       @test2.assign_variation
-
       bucket_after_filters
 
       cookie1 = cookies[@test1.cookie_name]
@@ -55,6 +56,14 @@ describe Bucket::Frameworks::Rails::Filters do
 
       cookie2 = cookies[@test2.cookie_name]
       @test2.variations.should include(cookie2[:value])
+    end
+
+    it 'should write new assignments to the new assignments cookie' do
+      @test1.assign_variation
+      @test2.assign_variation
+      bucket_after_filters
+      cookie = cookies[Bucket.new_assignments_cookie_name]
+      cookie.should == [@test1.cookie_name, @test2.cookie_name].join(',')
     end
   end
 
@@ -74,9 +83,9 @@ describe Bucket::Frameworks::Rails::Filters do
     end
 
     it 'should not record them as being assigned this request' do
-      Bucket.assignments_this_request[@test1.name].should be_nil 
+      Bucket.new_assignments[@test1.name].should be_nil 
       bucket_restore_assignments
-      Bucket.assignments_this_request[@test1.name].should be_nil 
+      Bucket.new_assignments[@test1.name].should be_nil 
     end
   end
 
@@ -96,10 +105,10 @@ describe Bucket::Frameworks::Rails::Filters do
     end
 
     it 'should record them as being assigned this request' do
-      Bucket.assignments_this_request[@test1.name].should be_nil
+      Bucket.new_assignments[@test1.name].should be_nil
       params[@test1.cookie_name] = 2
       bucket_assignment_though_url_parameters
-      Bucket.assignments_this_request[@test1.name].should == 2
+      Bucket.new_assignments[@test1.name].should == 2
     end
   end
 end

@@ -15,7 +15,7 @@ class Bucket
         end
 
         def bucket_participant
-          Bucket.participant = cookies['bucket_participant'] || 
+          Bucket.participant = cookies[Bucket.participant_cookie_name] || 
             ActiveSupport::SecureRandom.base64(10)
         end
 
@@ -44,7 +44,7 @@ class Bucket
         end
 
         def bucket_persist_participant(expiry_timestamp)
-          cookies['bucket_participant'] = {
+          cookies[Bucket.participant_cookie_name] = {
             :value => Bucket.participant,
             :expires => expiry_timestamp
           }
@@ -57,6 +57,11 @@ class Bucket
               :expires => expiry_timestamp
             }
           end
+
+          s = Bucket.new_assignments.keys.map do |test_name| 
+            Bucket::Test.get(test_name).cookie_name
+          end.join(',')
+          cookies[Bucket.new_assignments_cookie_name] = s if s && !s.empty?
         end
       end
     end
