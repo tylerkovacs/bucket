@@ -46,47 +46,99 @@ describe Bucket::Frameworks::Rails::Filters do
     end
 
     describe 'bucket_restore_assignments' do
-      before(:each) do
-        @variation1 = @test1.assign_variation
-        @variation2 = @test2.assign_variation
+      context 'active test' do
+        before(:each) do
+          @variation1 = @test1.assign_variation
+          @variation2 = @test2.assign_variation
 
-        bucket_after_filters
-        Bucket.clear_all_but_tests!
+          bucket_after_filters
+          Bucket.clear_all_but_tests!
+        end
+
+        it 'should restore assignments' do
+          bucket_before_filters
+          Bucket::Test.get(@test1.name).assigned_variation.should == @variation1
+          Bucket::Test.get(@test2.name).assigned_variation.should == @variation2
+        end
+
+        it 'should not record them as being assigned this request' do
+          Bucket.new_assignments[@test1.name].should be_nil 
+          bucket_before_filters
+          Bucket.new_assignments[@test1.name].should be_nil 
+        end
       end
 
-      it 'should restore assignments' do
-        bucket_before_filters
-        Bucket::Test.get(@test1.name).assigned_variation.should == @variation1 
-        Bucket::Test.get(@test2.name).assigned_variation.should == @variation2 
-      end
+      context 'inactive test' do
+        before(:each) do
+          @variation1 = @test1.assign_variation
 
-      it 'should not record them as being assigned this request' do
-        Bucket.new_assignments[@test1.name].should be_nil 
-        bucket_before_filters
-        Bucket.new_assignments[@test1.name].should be_nil 
+          bucket_after_filters
+          Bucket.clear_all_but_tests!
+          @test1.stub!(:active?).and_return(false)
+        end
+
+        it 'should restore assignments' do
+          bucket_before_filters
+          Bucket::Test.get(@test1.name).assigned_variation.should be_nil
+        end
+
+        it 'should not record them as being assigned this request' do
+          Bucket.new_assignments[@test1.name].should be_nil 
+          bucket_before_filters
+          Bucket.new_assignments[@test1.name].should be_nil 
+        end
       end
     end
 
     describe 'bucket_assignment_though_url_parameters' do
-      it 'should assign variation based on a url parameter' do
-        Bucket.assignments[@test1.name].should be_nil
-        params[@test1.cookie_name] = 2
-        bucket_before_filters
-        Bucket.assignments[@test1.name].should == 2
+      context 'active test' do
+        it 'should assign variation based on a url parameter' do
+          Bucket.assignments[@test1.name].should be_nil
+          params[@test1.cookie_name] = 2
+          bucket_before_filters
+          Bucket.assignments[@test1.name].should == 2
+        end
+
+        it 'should override a value if already set' do
+          Bucket.assignments[@test1.name] = 1
+          params[@test1.cookie_name] = 2
+          bucket_before_filters
+          Bucket.assignments[@test1.name].should == 2
+        end
+
+        it 'should record them as being assigned this request' do
+          Bucket.new_assignments[@test1.name].should be_nil
+          params[@test1.cookie_name] = 2
+          bucket_before_filters
+          Bucket.new_assignments[@test1.name].should == 2
+        end
       end
 
-      it 'should override a value if already set' do
-        Bucket.assignments[@test1.name] = 1
-        params[@test1.cookie_name] = 2
-        bucket_before_filters
-        Bucket.assignments[@test1.name].should == 2
-      end
+      context 'inactive test' do
+        before(:each) do
+          @test1.stub!(:active?).and_return(false)
+        end
 
-      it 'should record them as being assigned this request' do
-        Bucket.new_assignments[@test1.name].should be_nil
-        params[@test1.cookie_name] = 2
-        bucket_before_filters
-        Bucket.new_assignments[@test1.name].should == 2
+        it 'should assign variation based on a url parameter' do
+          Bucket.assignments[@test1.name].should be_nil
+          params[@test1.cookie_name] = 2
+          bucket_before_filters
+          Bucket.assignments[@test1.name].should == 2
+        end
+
+        it 'should override a value if already set' do
+          Bucket.assignments[@test1.name] = 1
+          params[@test1.cookie_name] = 2
+          bucket_before_filters
+          Bucket.assignments[@test1.name].should == 2
+        end
+
+        it 'should record them as being assigned this request' do
+          Bucket.new_assignments[@test1.name].should be_nil
+          params[@test1.cookie_name] = 2
+          bucket_before_filters
+          Bucket.new_assignments[@test1.name].should == 2
+        end
       end
     end
   end
@@ -102,25 +154,45 @@ describe Bucket::Frameworks::Rails::Filters do
     end
 
     describe 'bucket_persist_assignments' do
-      it 'should write assignments to a cookie' do
-        @test1.assign_variation
-        @test2.assign_variation
-        bucket_after_filters
+      context 'active test' do
+        it 'should write assignments to a cookie' do
+          @test1.assign_variation
+          @test2.assign_variation
+          bucket_after_filters
 
-        cookie1 = cookies[@test1.cookie_name]
-        @test1.variations.should include(cookie1[:value])
+          cookie1 = cookies[@test1.cookie_name]
+          @test1.variations.should include(cookie1[:value])
 
-        cookie2 = cookies[@test2.cookie_name]
-        @test2.variations.should include(cookie2[:value])
+          cookie2 = cookies[@test2.cookie_name]
+          @test2.variations.should include(cookie2[:value])
+        end
+
+        it 'should write new assignments to the new assignments cookie' do
+          @test1.assign_variation
+          @test2.assign_variation
+          bucket_after_filters
+          cookie = cookies[Bucket.new_assignments_cookie_name]
+          expected = [@test1.cookie_name, @test2.cookie_name].sort
+          cookie.split(',').sort.should == expected
+        end
       end
 
-      it 'should write new assignments to the new assignments cookie' do
-        @test1.assign_variation
-        @test2.assign_variation
-        bucket_after_filters
-        cookie = cookies[Bucket.new_assignments_cookie_name]
-        expected = [@test1.cookie_name, @test2.cookie_name].sort
-        cookie.split(',').sort.should == expected
+      context 'inactive test' do
+        before(:each) do
+          @test1.stub!(:active?).and_return(false)
+        end
+
+        it 'should not write assignments to a cookie' do
+          @test1.assign_variation
+          bucket_after_filters
+          cookies[@test1.cookie_name].should be_nil
+        end
+
+        it 'should not write new assignments to the new assignments cookie' do
+          @test1.assign_variation
+          bucket_after_filters
+          cookies[Bucket.new_assignments_cookie_name].should be_nil
+        end
       end
     end
   end
