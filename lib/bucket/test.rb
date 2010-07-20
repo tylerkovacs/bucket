@@ -20,7 +20,7 @@ class Bucket
     # Supported Attributes:
     # name       : The name of the test.
     # variations : Test options.
-    ATTRIBUTE_NAMES = [:name, :variations]
+    ATTRIBUTE_NAMES = [:name, :variations, :default]
 
     # Create get/set methods for all methods supported in the DSL.
     ATTRIBUTE_NAMES.each do |attribute_name|
@@ -86,9 +86,32 @@ class Bucket
       end
     end
 
+    def add_variation(value)
+      @attributes['variations'] << value
+    end
+
+    def default_variation
+      default || variations.first
+    end
+
+    def encoded_name
+      self.class.encoded_name(name)
+    end
+
+    def cookie_name
+      self.class.cookie_name(name)
+    end
+
+    # Validations
     def validate
       if !variations
         raise InvalidTestConfigurationException, "variations missing"
+      end
+    end
+
+    def validate_default_attribute
+      if !variations_include?(@attributes['default'])
+        @attributes.delete('default')
       end
     end
 
@@ -119,18 +142,7 @@ class Bucket
       end
     end
 
-    def add_variation(value)
-      @attributes['variations'] << value
-    end
-
-    def encoded_name
-      self.class.encoded_name(name)
-    end
-
-    def cookie_name
-      self.class.cookie_name(name)
-    end
-
+    # Class Methods
     class << self
       def get(name)
         @@tests[name]

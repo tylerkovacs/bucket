@@ -342,4 +342,20 @@ describe Bucket::Test do
       test.variations.should include(test.assigned_variation)
     end
   end
+
+  describe 'default variation' do
+    it 'should assign a default variation' do
+      @test.default 2
+      @test.default_variation.should == 2
+    end
+
+    it 'should default to the first variation' do
+      @test.default_variation.should == 1
+    end
+
+    it 'should not assign a default variation if default is invalid' do
+      @test.default 4
+      @test.default_variation.should == 1
+    end
+  end
 end
