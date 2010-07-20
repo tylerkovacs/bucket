@@ -15,12 +15,15 @@ class Bucket
     # create_bucket_test do
     #   name 'color test'
     #   variations ['red', 'green', 'blue']
+    #   default 'red'
+    #   start_at '2010/07/20 03:00:00'
+    #   end_at '2010/07/20 07:00:00'
     # end
     #
     # Supported Attributes:
     # name       : The name of the test.
     # variations : Test options.
-    ATTRIBUTE_NAMES = [:name, :variations, :default]
+    ATTRIBUTE_NAMES = [:name, :variations, :default, :start_at, :end_at]
 
     # Create get/set methods for all methods supported in the DSL.
     ATTRIBUTE_NAMES.each do |attribute_name|
@@ -55,7 +58,31 @@ class Bucket
       return nil
     end
 
+    def within_time_range?(time=Time.now)
+      if !start_at && !end_at
+        true
+      elsif start_at && end_at
+        (time > start_at) && (time < end_at)
+      elsif start_at 
+        time > start_at
+      elsif end_at 
+        time < end_at
+      else
+        false
+      end
+    end
+
+    def active?
+      if !within_time_range?
+        false
+      else
+        true
+      end
+    end
+
     def assign_variation(variation=:magic_default_value, options={})
+      return default_variation if !active? && !options[:force]
+
       if !Bucket.assignments.has_key?(name) || options[:force]
         if variation = variations_include?(variation)
           Bucket.assignments[name] = variation
@@ -104,14 +131,57 @@ class Bucket
 
     # Validations
     def validate
+      # Reject test if there are no variations supplied
       if !variations
         raise InvalidTestConfigurationException, "variations missing"
       end
     end
 
+    # Reject the default value if the supplied default is not a valid
+    # variation.
     def validate_default_attribute
       if !variations_include?(@attributes['default'])
         @attributes.delete('default')
+      end
+    end
+
+    def validate_start_at_attribute
+      if !@attributes['start_at']
+        raise InvalidTestConfigurationException, "start_at missing"
+      end
+
+      # Accept Time objects
+      return if @attributes['start_at'].is_a?(Time)
+
+      if @attributes['start_at'].is_a?(String)
+        begin
+          @attributes['start_at'] = Time.parse(@attributes['start_at'])
+        rescue Exception => err
+          raise InvalidTestConfigurationException, 
+            "start_at could not be Time.parse'd: #{err.message} "
+        end
+      else
+        raise InvalidTestConfigurationException, "start_at must be a String"
+      end
+    end
+
+    def validate_end_at_attribute
+      if !@attributes['end_at']
+        raise InvalidTestConfigurationException, "end_at missing"
+      end
+
+      # Accept Time objects
+      return if @attributes['end_at'].is_a?(Time)
+
+      if @attributes['end_at'].is_a?(String)
+        begin
+          @attributes['end_at'] = Time.parse(@attributes['end_at'])
+        rescue Exception => err
+          raise InvalidTestConfigurationException, 
+            "end_at could not be Time.parse'd: #{err.message} "
+        end
+      else
+        raise InvalidTestConfigurationException, "end_at must be a String"
       end
     end
 

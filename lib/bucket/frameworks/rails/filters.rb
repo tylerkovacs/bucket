@@ -33,7 +33,9 @@ class Bucket
         def bucket_assignment_though_url_parameters
           Bucket::Test.all.each do |test_name, test|
             value = params[Bucket::Test.cookie_name(test_name)]
-            test.assign_variation(value, {:force => true}) if value
+            test.assign_variation(value, {
+              :force => true
+            }) if value
           end
         end
 
