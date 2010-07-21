@@ -12,12 +12,12 @@ describe Bucket::Frameworks::Rails::Filters do
 
     @test1 = Bucket::Test.from_string <<-EOF
       create_bucket_test :test_1 do
-        variations [1, 2, 3]
+        values [1, 2, 3]
       end
     EOF
     @test2 = Bucket::Test.from_string <<-EOF
       create_bucket_test :test_2 do
-        variations [4, 5, 6]
+        values [4, 5, 6]
       end
     EOF
   end
@@ -48,8 +48,8 @@ describe Bucket::Frameworks::Rails::Filters do
     describe 'bucket_restore_assignments' do
       context 'active test' do
         before(:each) do
-          @variation1 = @test1.assign
-          @variation2 = @test2.assign
+          @value1 = @test1.assign
+          @value2 = @test2.assign
 
           bucket_after_filters
           Bucket.clear_all_but_test_definitions!
@@ -57,8 +57,8 @@ describe Bucket::Frameworks::Rails::Filters do
 
         it 'should restore assignments' do
           bucket_before_filters
-          Bucket::Test.get(@test1.name).assigned_variation.should == @variation1
-          Bucket::Test.get(@test2.name).assigned_variation.should == @variation2
+          Bucket::Test.get(@test1.name).value.should == @value1
+          Bucket::Test.get(@test2.name).value.should == @value2
         end
 
         it 'should not record them as being assigned this request' do
@@ -70,7 +70,7 @@ describe Bucket::Frameworks::Rails::Filters do
 
       context 'inactive test' do
         before(:each) do
-          @variation1 = @test1.assign
+          @value1 = @test1.assign
 
           bucket_after_filters
           Bucket.clear_all_but_test_definitions!
@@ -79,7 +79,7 @@ describe Bucket::Frameworks::Rails::Filters do
 
         it 'should restore assignments' do
           bucket_before_filters
-          Bucket::Test.get(@test1.name).assigned_variation.should be_nil
+          Bucket::Test.get(@test1.name).value.should be_nil
         end
 
         it 'should not record them as being assigned this request' do
@@ -92,7 +92,7 @@ describe Bucket::Frameworks::Rails::Filters do
 
     describe 'bucket_assignment_though_url_parameters' do
       context 'active test' do
-        it 'should assign variation based on a url parameter' do
+        it 'should assign value based on a url parameter' do
           Bucket.assignments[@test1.name].should be_nil
           params[@test1.cookie_name] = 2
           bucket_before_filters
@@ -119,7 +119,7 @@ describe Bucket::Frameworks::Rails::Filters do
           @test1.stub!(:active?).and_return(false)
         end
 
-        it 'should assign variation based on a url parameter' do
+        it 'should assign value based on a url parameter' do
           Bucket.assignments[@test1.name].should be_nil
           params[@test1.cookie_name] = 2
           bucket_before_filters
@@ -161,10 +161,10 @@ describe Bucket::Frameworks::Rails::Filters do
           bucket_after_filters
 
           cookie1 = cookies[@test1.cookie_name]
-          @test1.variations.should include(cookie1[:value])
+          @test1.values.should include(cookie1[:value])
 
           cookie2 = cookies[@test2.cookie_name]
-          @test2.variations.should include(cookie2[:value])
+          @test2.values.should include(cookie2[:value])
         end
 
         it 'should write new assignments to the new assignments cookie' do

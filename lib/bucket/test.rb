@@ -20,7 +20,7 @@ class Bucket
     # Example:
     # create_bucket_test do
     #   name 'color test'
-    #   variations ['red', 'green', 'blue']
+    #   values ['red', 'green', 'blue']
     #   default 'red'
     #   start_at '2010/07/20 03:00:00'
     #   end_at '2010/07/20 07:00:00'
@@ -28,8 +28,8 @@ class Bucket
     #
     # Supported Attributes:
     # name       : The name of the test.
-    # variations : Test options.
-    ATTRIBUTE_NAMES = [:name, :variations, :default, :start_at, :end_at]
+    # values : Test options.
+    ATTRIBUTE_NAMES = [:name, :values, :default, :start_at, :end_at]
 
     # Create get/set methods for all methods supported in the DSL.
     ATTRIBUTE_NAMES.each do |attribute_name|
@@ -51,12 +51,12 @@ class Bucket
       @weights = Hash.new(1)
     end
 
-    def assigned_variation
+    def value
       Bucket.assignments[name]
     end
 
-    def variations_include?(value)
-      variations.each do |v|
+    def values_include?(value)
+      values.each do |v|
         return v if (v == value || v.to_s == value)
         return v if (v.respond_to?(:to_sym) && v.to_sym == value)
       end
@@ -86,16 +86,16 @@ class Bucket
       end
     end
 
-    def force_assign(variation=MAGIC_DEFAULT_VALUE, options={})
-      assign(variation, options.merge({:force => true}))
+    def force_assign(value=MAGIC_DEFAULT_VALUE, options={})
+      assign(value, options.merge({:force => true}))
     end
 
-    def assign(variation=MAGIC_DEFAULT_VALUE, options={})
-      return default_variation if !active? && !options[:force]
+    def assign(value=MAGIC_DEFAULT_VALUE, options={})
+      return default_value if !active? && !options[:force]
 
       if !Bucket.assignments.has_key?(name) || options[:force]
-        if variation = variations_include?(variation)
-          Bucket.assignments[name] = variation
+        if value = values_include?(value)
+          Bucket.assignments[name] = value
         else
           Bucket.assignments[name] = assign_uncached
         end
@@ -110,25 +110,25 @@ class Bucket
 
     def assign_uncached
       if !@weights.empty?
-        random = (0..variations.length-1).to_a.inject(0.0) do |t,i| 
+        random = (0..values.length-1).to_a.inject(0.0) do |t,i| 
           t + @weights[i]
         end * rand
 
-        (0..variations.length-1).to_a.map{|i| [i, @weights[i]]}.each do |i,w|
-          return variations[i] if w >= random
+        (0..values.length-1).to_a.map{|i| [i, @weights[i]]}.each do |i,w|
+          return values[i] if w >= random
           random -= w
         end
       else
-        variations[rand(variations.length)]
+        values[rand(values.length)]
       end
     end
 
-    def add_variation(value)
-      @attributes['variations'] << value
+    def add_value(value)
+      @attributes['values'] << value
     end
 
-    def default_variation
-      default || variations.first
+    def default_value
+      default || values.first
     end
 
     def encoded_name

@@ -7,7 +7,7 @@ describe Bucket::Test do
 
     @definition =<<-EOF
       create_bucket_test :test_name do
-        variations [1, 2, 3]
+        values [1, 2, 3]
       end
     EOF
     @test = Bucket::Test.from_string(@definition)
@@ -23,8 +23,8 @@ describe Bucket::Test do
     end
 
     it 'should allow tests changes to hold in future gets' do
-      Bucket::Test.get(:test_name).variations [1,2]
-      Bucket::Test.get(:test_name).variations.should == [1,2]
+      Bucket::Test.get(:test_name).values [1,2]
+      Bucket::Test.get(:test_name).values.should == [1,2]
     end
   end
 
@@ -49,7 +49,7 @@ describe Bucket::Test do
         lambda {
           @test2 = Bucket::Test.from_string <<-EOF
             create_bucket_test :test_name do
-              variations [1, 2, 3]
+              values [1, 2, 3]
             end
           EOF
         }.should raise_error(Bucket::Test::DuplicateTestNameException)
@@ -59,7 +59,7 @@ describe Bucket::Test do
         new_test = Bucket::Test.from_string <<-EOF
           create_bucket_test :new_test do
             name :new_test
-            variations [1, 2, 3]
+            values [1, 2, 3]
           end
         EOF
 
@@ -69,58 +69,58 @@ describe Bucket::Test do
       it 'should allow the name to be passed in as the first argument' do
         new_test = Bucket::Test.from_string <<-EOF
           create_bucket_test :new_test do
-            variations [1, 2, 3]
+            values [1, 2, 3]
           end
         EOF
 
         new_test.name.should == :new_test
-        new_test.variations.should == [1, 2, 3]
+        new_test.values.should == [1, 2, 3]
       end
     end
 
-    context 'variations' do
-      it 'should accept an array for the variations attribute' do
-        @test.variations [1, 2, 3, 4]
-        @test.variations.should == [1, 2, 3, 4]
+    context 'values' do
+      it 'should accept an array for the values attribute' do
+        @test.values [1, 2, 3, 4]
+        @test.values.should == [1, 2, 3, 4]
       end
 
-      it 'should accept nil as a variation value' do
+      it 'should accept nil as a value value' do
         lambda {
-          @test.variations [1, nil]
+          @test.values [1, nil]
         }.should_not raise_error
       end
 
-      it 'should accept false as a variation value' do
+      it 'should accept false as a value value' do
         lambda {
-          @test.variations [1, false]
+          @test.values [1, false]
         }.should_not raise_error
       end
 
-      it 'should accept an array of hashes for the variations attribute' do
-        @test.variations [
+      it 'should accept an array of hashes for the values attribute' do
+        @test.values [
           {:value => 1},
           {:value => 2}
         ]
-        @test.variations.should == [1, 2]
+        @test.values.should == [1, 2]
       end
 
-      it 'should support a mix of hash and non-hash variations' do
-        @test.variations [
+      it 'should support a mix of hash and non-hash values' do
+        @test.values [
           {:value => 1},
           2
         ]
-        @test.variations.should == [1, 2]
+        @test.values.should == [1, 2]
       end
 
-      it 'should error if a hash variation is missing a :value' do
+      it 'should error if a hash value is missing a :value' do
         lambda {
-          @test.variations [
+          @test.values [
             {}
           ]
         }.should raise_error(Bucket::Test::InvalidTestConfigurationException)
       end
 
-      it 'should not allow missing variations' do
+      it 'should not allow missing values' do
         lambda {
           test = Bucket::Test.from_string <<-EOF
             create_bucket_test :bad do
@@ -129,28 +129,28 @@ describe Bucket::Test do
         }.should raise_error(Bucket::Test::InvalidTestConfigurationException)
       end
 
-      it 'should not allow non-Array variations' do
+      it 'should not allow non-Array values' do
         lambda {
           test = Bucket::Test.from_string <<-EOF
             create_bucket_test :bad do
-              variations({1 => 20})
+              values({1 => 20})
             end
           EOF
         }.should raise_error(Bucket::Test::InvalidTestConfigurationException)
       end
 
-      it 'should not allow empty variations' do
+      it 'should not allow empty values' do
         lambda {
           test = Bucket::Test.from_string <<-EOF
             create_bucket_test :bad do
-              variations []
+              values []
             end
           EOF
         }.should raise_error(Bucket::Test::InvalidTestConfigurationException)
       end
 
-      it 'should allow weights to be assigned to variations' do
-        @test.variations [
+      it 'should allow weights to be assigned to values' do
+        @test.values [
           {:value => 1, :weight => 2},
           {:value => 2}
         ]
@@ -162,7 +162,7 @@ describe Bucket::Test do
   describe 'from_string' do
     it 'should set supported attribute' do
       @test.name.should == :test_name
-      @test.variations.should == [1, 2, 3]
+      @test.values.should == [1, 2, 3]
     end
 
     it 'should register the new test' do
@@ -181,7 +181,7 @@ describe Bucket::Test do
 
         new_test = Bucket::Test.from_file(file.path)
         new_test.name.should == :test_name
-        new_test.variations.should == [1, 2, 3]
+        new_test.values.should == [1, 2, 3]
       end
 
       Bucket::Test.number_of_tests.should == 1
@@ -198,25 +198,25 @@ describe Bucket::Test do
 
   describe 'assign' do
     context 'active' do
-      it 'should pick a variation at random' do
-        variation = @test.assign
-        variation.should_not be_nil
-        @test.variations.should include(variation)
+      it 'should pick a value at random' do
+        value = @test.assign
+        value.should_not be_nil
+        @test.values.should include(value)
       end
 
       it 'should record in new_assignments by default' do
         Bucket.new_assignments[@test.name].should be_nil
-        variation = @test.assign
-        Bucket.new_assignments[@test.name].should == variation
+        value = @test.assign
+        Bucket.new_assignments[@test.name].should == value
       end
 
       it 'should not record in new_assignments with previously_assigned argument' do
         Bucket.new_assignments[@test.name].should be_nil
-        variation = @test.assign(1, {:previously_assigned => true})
+        value = @test.assign(1, {:previously_assigned => true})
         Bucket.new_assignments[@test.name].should be_nil
       end
 
-      it 'should pick a variation using an even distribution by default' do
+      it 'should pick a value using an even distribution by default' do
         frequencies = Hash.new(0)
         1000.times { frequencies[@test.assign_uncached] += 1}
         frequencies.values.each do |val|
@@ -224,8 +224,8 @@ describe Bucket::Test do
         end
       end
 
-      it 'should pick a variation using a weighted distribution if configured' do
-        @test.variations [
+      it 'should pick a value using a weighted distribution if configured' do
+        @test.values [
           {:value => 1, :weight => 2},
           {:value => 2}
         ]
@@ -236,7 +236,7 @@ describe Bucket::Test do
       end
 
       it 'should support weighted distribution with any number of values' do
-        @test.variations [
+        @test.values [
           {:value => 1, :weight => 0.5},
           {:value => 2},
           {:value => 3, :weight => 3.5}
@@ -249,33 +249,33 @@ describe Bucket::Test do
       end
 
       it 'should accept a value when passed in' do
-        variation = @test.assign(2)
-        variation.should == 2
+        value = @test.assign(2)
+        value.should == 2
       end
 
       it 'should not override a value if already set by default' do
-        variation = @test.assign(2)
-        variation.should == 2
-        variation = @test.assign(3)
-        variation.should == 2
+        value = @test.assign(2)
+        value.should == 2
+        value = @test.assign(3)
+        value.should == 2
       end
 
       it 'should override a value if already set by default using force' do
-        variation = @test.assign(2)
-        variation.should == 2
-        variation = @test.force_assign(3)
-        variation.should == 3
+        value = @test.assign(2)
+        value.should == 2
+        value = @test.force_assign(3)
+        value.should == 3
       end
 
       it 'should accept a value when passed in as a string' do
-        variation = @test.assign('2')
-        variation.should == 2
+        value = @test.assign('2')
+        value.should == 2
       end
 
-      it 'should not accept a value if not a valid variation' do
-        variation = @test.assign(-1)
-        variation.should_not == -1
-        @test.variations.should include(variation)
+      it 'should not accept a value if not a valid value' do
+        value = @test.assign(-1)
+        value.should_not == -1
+        @test.values.should include(value)
       end
     end
 
@@ -284,11 +284,11 @@ describe Bucket::Test do
         @test.stub!(:active?).and_return(false)
       end
 
-      it 'should return the default variation if the test is not active' do
-        @test.assign.should == @test.default_variation
+      it 'should return the default value if the test is not active' do
+        @test.assign.should == @test.default_value
       end
 
-      it 'should not assign a persistent variation if test is not active' do
+      it 'should not assign a persistent value if test is not active' do
         Bucket.assignments[@test.name].should be_nil
         Bucket.new_assignments[@test.name].should be_nil
       end
@@ -303,44 +303,44 @@ describe Bucket::Test do
     end
   end
 
-  describe 'variations_include' do
+  describe 'values_include' do
     it 'should return value if value is included' do
-      @test.variations_include?(2).should == 2
+      @test.values_include?(2).should == 2
     end
 
     it 'should return value if value as string is included' do
-      @test.variations_include?('2').should == 2
+      @test.values_include?('2').should == 2
     end
 
     it 'should return a value if value as symbol is included' do
-      @test.variations ['one']
-      @test.variations_include?(:one).should == 'one'
+      @test.values ['one']
+      @test.values_include?(:one).should == 'one'
     end
 
     it 'should return nil if value is not included' do
-      @test.variations_include?(7).should be_nil
+      @test.values_include?(7).should be_nil
     end
   end
 
-  describe 'assigned variations' do
-    it 'should return the selected variation' do
-      variation = @test.assign
-      variation.should_not be_nil
-      @test.variations.should include(variation)
+  describe 'assigned values' do
+    it 'should return the selected value' do
+      value = @test.assign
+      value.should_not be_nil
+      @test.values.should include(value)
     end
 
     it 'should not change between calls' do
-      variation = @test.assigned_variation
-      10.times { @test.assigned_variation.should == variation }
+      value = @test.value
+      10.times { @test.value.should == value }
     end
   end
 
   describe 'create_bucket_test' do
-    it 'should not select a variation' do
+    it 'should not select a value' do
       test = Bucket::Test.create_bucket_test :new_test_name do
-        variations [1, 2, 3, 4]
+        values [1, 2, 3, 4]
       end
-      test.assigned_variation.should be_nil
+      test.value.should be_nil
     end
   end
 
@@ -353,11 +353,11 @@ describe Bucket::Test do
     it 'should create and return a new test if no match' do
       Bucket::Test.number_of_tests.should == 1
       Bucket::Test.bucket_test :new_test_name do
-        variations [1, 2, 3, 4]
+        values [1, 2, 3, 4]
       end
       Bucket::Test.number_of_tests.should == 2
       test = Bucket::Test.get(:new_test_name)
-      test.variations.should == [1, 2, 3, 4]
+      test.values.should == [1, 2, 3, 4]
     end
 
     it 'should raise an exception if no match and no block' do
@@ -366,26 +366,26 @@ describe Bucket::Test do
       }.should raise_error(Bucket::Test::UnknownTestException)
     end
 
-    it 'should select a variation' do
+    it 'should select a value' do
       test = Bucket::Test.bucket_test :test_name
-      test.assigned_variation.should_not be_nil
-      test.variations.should include(test.assigned_variation)
+      test.value.should_not be_nil
+      test.values.should include(test.value)
     end
   end
 
-  describe 'default variation' do
-    it 'should assign a default variation' do
+  describe 'default value' do
+    it 'should assign a default value' do
       @test.default 2
-      @test.default_variation.should == 2
+      @test.default_value.should == 2
     end
 
-    it 'should default to the first variation' do
-      @test.default_variation.should == 1
+    it 'should default to the first value' do
+      @test.default_value.should == 1
     end
 
-    it 'should not assign a default variation if default is invalid' do
+    it 'should not assign a default value if default is invalid' do
       @test.default 4
-      @test.default_variation.should == 1
+      @test.default_value.should == 1
     end
   end
 

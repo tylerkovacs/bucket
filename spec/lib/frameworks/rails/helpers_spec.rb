@@ -9,7 +9,7 @@ describe Bucket::Frameworks::Rails::Helpers do
     Bucket.clear!
     @test = Bucket::Test.from_string <<-EOF
       create_bucket_test :test_name do
-        variations [:red, :green, :blue]
+        values [:red, :green, :blue]
       end
     EOF
   end
@@ -23,11 +23,11 @@ describe Bucket::Frameworks::Rails::Helpers do
     it 'should create and return a new test if no match' do
       Bucket::Test.number_of_tests.should == 1
       bucket_test :new_test_name do
-        variations [:red, :green, :blue, :cyan]
+        values [:red, :green, :blue, :cyan]
       end
       Bucket::Test.number_of_tests.should == 2
       test = Bucket::Test.get(:new_test_name)
-      test.variations.should == [:red, :green, :blue, :cyan]
+      test.values.should == [:red, :green, :blue, :cyan]
     end
 
     it 'should raise an exception if no match and no block' do
@@ -36,10 +36,10 @@ describe Bucket::Frameworks::Rails::Helpers do
       }.should raise_error(Bucket::Test::UnknownTestException)
     end
 
-    it 'should select a variation' do
+    it 'should select a value' do
       test = bucket_test :test_name
-      test.assigned_variation.should_not be_nil
-      test.variations.should include(test.assigned_variation)
+      test.value.should_not be_nil
+      test.values.should include(test.value)
     end
 
     it 'should record as being assigned in this request' do
