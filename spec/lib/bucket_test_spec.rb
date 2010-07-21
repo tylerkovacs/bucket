@@ -21,6 +21,11 @@ describe Bucket::Test do
     it 'should return nil if no match' do
       Bucket::Test.get('no such test').should be_nil
     end
+
+    it 'should allow tests changes to hold in future gets' do
+      Bucket::Test.get(:test_name).variations [1,2]
+      Bucket::Test.get(:test_name).variations.should == [1,2]
+    end
   end
 
   describe 'attributes' do

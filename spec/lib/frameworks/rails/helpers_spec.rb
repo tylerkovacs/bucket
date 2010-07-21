@@ -9,7 +9,7 @@ describe Bucket::Frameworks::Rails::Helpers do
     Bucket.clear!
     @test = Bucket::Test.from_string <<-EOF
       create_bucket_test :test_name do
-        variations [1, 2, 3]
+        variations [:red, :green, :blue]
       end
     EOF
   end
@@ -23,11 +23,11 @@ describe Bucket::Frameworks::Rails::Helpers do
     it 'should create and return a new test if no match' do
       Bucket::Test.number_of_tests.should == 1
       bucket_test :new_test_name do
-        variations [1, 2, 3, 4]
+        variations [:red, :green, :blue, :cyan]
       end
       Bucket::Test.number_of_tests.should == 2
       test = Bucket::Test.get(:new_test_name)
-      test.variations.should == [1, 2, 3, 4]
+      test.variations.should == [:red, :green, :blue, :cyan]
     end
 
     it 'should raise an exception if no match and no block' do
@@ -49,3 +49,16 @@ describe Bucket::Frameworks::Rails::Helpers do
     end
   end
 end
+
+
+=begin
+test = Bucket::Test.get :test_name
+test.assign_variation(:red)
+
+or
+
+Bucket::Test.get(:test_name).assign_variation(:red)
+
+- neither will work in integration tests
+
+=end

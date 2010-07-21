@@ -11,6 +11,8 @@ class Bucket
     # Class variable storing all defined tests.
     @@tests = {}
 
+    MAGIC_DEFAULT_VALUE = :bucket_test_magic_default_value
+
     # Bucket::Test DSL
     #
     # The Bucket::Test DSL defines tests.
@@ -84,7 +86,7 @@ class Bucket
       end
     end
 
-    def assign_variation(variation=:magic_default_value, options={})
+    def assign_variation(variation=MAGIC_DEFAULT_VALUE, options={})
       return default_variation if !active? && !options[:force]
 
       if !Bucket.assignments.has_key?(name) || options[:force]
