@@ -196,29 +196,29 @@ describe Bucket::Test do
     end
   end
 
-  describe 'assign_variation' do
+  describe 'assign' do
     context 'active' do
       it 'should pick a variation at random' do
-        variation = @test.assign_variation
+        variation = @test.assign
         variation.should_not be_nil
         @test.variations.should include(variation)
       end
 
       it 'should record in new_assignments by default' do
         Bucket.new_assignments[@test.name].should be_nil
-        variation = @test.assign_variation
+        variation = @test.assign
         Bucket.new_assignments[@test.name].should == variation
       end
 
       it 'should not record in new_assignments with previously_assigned argument' do
         Bucket.new_assignments[@test.name].should be_nil
-        variation = @test.assign_variation(1, {:previously_assigned => true})
+        variation = @test.assign(1, {:previously_assigned => true})
         Bucket.new_assignments[@test.name].should be_nil
       end
 
       it 'should pick a variation using an even distribution by default' do
         frequencies = Hash.new(0)
-        1000.times { frequencies[@test.assign_variation_uncached] += 1}
+        1000.times { frequencies[@test.assign_uncached] += 1}
         frequencies.values.each do |val|
           val.should be_close(333, 150) 
         end
@@ -230,7 +230,7 @@ describe Bucket::Test do
           {:value => 2}
         ]
         frequencies = Hash.new(0)
-        1000.times { frequencies[@test.assign_variation_uncached] += 1}
+        1000.times { frequencies[@test.assign_uncached] += 1}
         frequencies[1].should be_close(666, 150)
         frequencies[2].should be_close(333, 150)
       end
@@ -242,38 +242,38 @@ describe Bucket::Test do
           {:value => 3, :weight => 3.5}
         ]
         frequencies = Hash.new(0)
-        1000.times { frequencies[@test.assign_variation_uncached] += 1}
+        1000.times { frequencies[@test.assign_uncached] += 1}
         frequencies[1].should be_close(100, 150)
         frequencies[2].should be_close(200, 150)
         frequencies[3].should be_close(700, 150)
       end
 
       it 'should accept a value when passed in' do
-        variation = @test.assign_variation(2)
+        variation = @test.assign(2)
         variation.should == 2
       end
 
       it 'should not override a value if already set by default' do
-        variation = @test.assign_variation(2)
+        variation = @test.assign(2)
         variation.should == 2
-        variation = @test.assign_variation(3)
+        variation = @test.assign(3)
         variation.should == 2
       end
 
       it 'should override a value if already set by default using force' do
-        variation = @test.assign_variation(2)
+        variation = @test.assign(2)
         variation.should == 2
-        variation = @test.assign_variation(3, {:force => true})
+        variation = @test.force_assign(3)
         variation.should == 3
       end
 
       it 'should accept a value when passed in as a string' do
-        variation = @test.assign_variation('2')
+        variation = @test.assign('2')
         variation.should == 2
       end
 
       it 'should not accept a value if not a valid variation' do
-        variation = @test.assign_variation(-1)
+        variation = @test.assign(-1)
         variation.should_not == -1
         @test.variations.should include(variation)
       end
@@ -285,7 +285,7 @@ describe Bucket::Test do
       end
 
       it 'should return the default variation if the test is not active' do
-        @test.assign_variation.should == @test.default_variation
+        @test.assign.should == @test.default_variation
       end
 
       it 'should not assign a persistent variation if test is not active' do
@@ -294,11 +294,11 @@ describe Bucket::Test do
       end
 
       it 'should not allow a manual assignment by default' do
-        @test.assign_variation(2).should == 1
+        @test.assign(2).should == 1
       end
 
       it 'should allow a manual assignment when force option used' do
-        @test.assign_variation(2, {:force => true}).should == 2
+        @test.assign(2, {:force => true}).should == 2
       end
     end
   end
@@ -324,7 +324,7 @@ describe Bucket::Test do
 
   describe 'assigned variations' do
     it 'should return the selected variation' do
-      variation = @test.assign_variation
+      variation = @test.assign
       variation.should_not be_nil
       @test.variations.should include(variation)
     end

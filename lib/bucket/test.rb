@@ -86,14 +86,18 @@ class Bucket
       end
     end
 
-    def assign_variation(variation=MAGIC_DEFAULT_VALUE, options={})
+    def force_assign(variation=MAGIC_DEFAULT_VALUE, options={})
+      assign(variation, options.merge({:force => true}))
+    end
+
+    def assign(variation=MAGIC_DEFAULT_VALUE, options={})
       return default_variation if !active? && !options[:force]
 
       if !Bucket.assignments.has_key?(name) || options[:force]
         if variation = variations_include?(variation)
           Bucket.assignments[name] = variation
         else
-          Bucket.assignments[name] = assign_variation_uncached
+          Bucket.assignments[name] = assign_uncached
         end
 
         unless options[:previously_assigned]
@@ -104,7 +108,7 @@ class Bucket
       Bucket.assignments[name]
     end
 
-    def assign_variation_uncached
+    def assign_uncached
       if !@weights.empty?
         random = (0..variations.length-1).to_a.inject(0.0) do |t,i| 
           t + @weights[i]
@@ -186,7 +190,7 @@ class Bucket
           test
         end
 
-        test.assign_variation
+        test.assign
         test
       end
 

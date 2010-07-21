@@ -48,8 +48,8 @@ describe Bucket::Frameworks::Rails::Filters do
     describe 'bucket_restore_assignments' do
       context 'active test' do
         before(:each) do
-          @variation1 = @test1.assign_variation
-          @variation2 = @test2.assign_variation
+          @variation1 = @test1.assign
+          @variation2 = @test2.assign
 
           bucket_after_filters
           Bucket.clear_all_but_test_definitions!
@@ -70,7 +70,7 @@ describe Bucket::Frameworks::Rails::Filters do
 
       context 'inactive test' do
         before(:each) do
-          @variation1 = @test1.assign_variation
+          @variation1 = @test1.assign
 
           bucket_after_filters
           Bucket.clear_all_but_test_definitions!
@@ -156,8 +156,8 @@ describe Bucket::Frameworks::Rails::Filters do
     describe 'bucket_persist_assignments' do
       context 'active test' do
         it 'should write assignments to a cookie' do
-          @test1.assign_variation
-          @test2.assign_variation
+          @test1.assign
+          @test2.assign
           bucket_after_filters
 
           cookie1 = cookies[@test1.cookie_name]
@@ -168,8 +168,8 @@ describe Bucket::Frameworks::Rails::Filters do
         end
 
         it 'should write new assignments to the new assignments cookie' do
-          @test1.assign_variation
-          @test2.assign_variation
+          @test1.assign
+          @test2.assign
           bucket_after_filters
           cookie = cookies[Bucket.new_assignments_cookie_name]
           expected = [@test1.cookie_name, @test2.cookie_name].sort
@@ -183,13 +183,13 @@ describe Bucket::Frameworks::Rails::Filters do
         end
 
         it 'should not write assignments to a cookie' do
-          @test1.assign_variation
+          @test1.assign
           bucket_after_filters
           cookies[@test1.cookie_name].should be_nil
         end
 
         it 'should not write new assignments to the new assignments cookie' do
-          @test1.assign_variation
+          @test1.assign
           bucket_after_filters
           cookies[Bucket.new_assignments_cookie_name].should be_nil
         end

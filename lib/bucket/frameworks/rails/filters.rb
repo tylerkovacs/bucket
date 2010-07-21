@@ -24,18 +24,14 @@ class Bucket
           Bucket::Test.all.each do |test_name, test|
             value = cookies[Bucket::Test.cookie_name(test_name)]
             value = value[:value] if value.is_a?(Hash)
-            test.assign_variation(value, {
-              :previously_assigned => true
-            }) if value
+            test.assign(value, {:previously_assigned => true}) if value
           end
         end
 
         def bucket_assignment_though_url_parameters
           Bucket::Test.all.each do |test_name, test|
             value = params[Bucket::Test.cookie_name(test_name)]
-            test.assign_variation(value, {
-              :force => true
-            }) if value
+            test.force_assign(value) if value
           end
         end
 

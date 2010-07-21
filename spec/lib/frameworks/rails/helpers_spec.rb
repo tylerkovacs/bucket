@@ -53,11 +53,11 @@ end
 
 =begin
 test = Bucket::Test.get :test_name
-test.assign_variation(:red)
+test.assign(:red)
 
 or
 
-Bucket::Test.get(:test_name).assign_variation(:red)
+Bucket::Test.get(:test_name).assign(:red)
 
 - neither will work in integration tests
 
