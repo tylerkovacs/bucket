@@ -52,7 +52,7 @@ describe Bucket::Frameworks::Rails::Filters do
           @variation2 = @test2.assign_variation
 
           bucket_after_filters
-          Bucket.clear_all_but_tests!
+          Bucket.clear_all_but_test_definitions!
         end
 
         it 'should restore assignments' do
@@ -73,7 +73,7 @@ describe Bucket::Frameworks::Rails::Filters do
           @variation1 = @test1.assign_variation
 
           bucket_after_filters
-          Bucket.clear_all_but_tests!
+          Bucket.clear_all_but_test_definitions!
           @test1.stub!(:active?).and_return(false)
         end
 

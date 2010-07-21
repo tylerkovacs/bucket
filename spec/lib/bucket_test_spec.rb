@@ -167,7 +167,7 @@ describe Bucket::Test do
 
   describe 'from_file' do
     it 'should read the test definition from a file' do
-      Bucket.clear_tests!
+      Bucket.clear_test_definitions!
       Bucket::Test.number_of_tests.should == 0
 
       Tempfile.open('from_file') do |file|

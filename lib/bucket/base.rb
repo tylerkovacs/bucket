@@ -47,17 +47,17 @@ class Bucket
       end
 
       def clear!
-        clear_all_but_tests!
-        clear_tests!
+        clear_all_but_test_definitions!
+        clear_test_definitions!
       end
 
-      def clear_all_but_tests!
+      def clear_all_but_test_definitions!
         Bucket.participant = nil
         Bucket.assignments.clear
         Bucket.new_assignments.clear
       end
 
-      def clear_tests!
+      def clear_test_definitions!
         Bucket::Test.clear!
       end
     end

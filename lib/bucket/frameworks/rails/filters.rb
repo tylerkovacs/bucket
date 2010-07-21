@@ -12,7 +12,7 @@ class Bucket
 
         def bucket_clear_state
           cookies.delete(Bucket.new_assignments_cookie_name)
-          Bucket.clear_all_but_tests!
+          Bucket.clear_all_but_test_definitions!
         end
 
         def bucket_participant
