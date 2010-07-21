@@ -1,6 +1,7 @@
 unless defined?(Bucket)
   require File.join(File.dirname(__FILE__), 'bucket', 'base')
   require File.join(File.dirname(__FILE__), 'bucket', 'test')
+  require File.join(File.dirname(__FILE__), 'bucket', 'store')
 
   class Bucket
     include Bucket::Base
@@ -14,5 +15,6 @@ unless defined?(Bucket)
     Bucket.config_path = File.join("spec", "config", "bucket")
   end
 
+  Bucket.store ||= Bucket::Store::Directory.new(Bucket.config_path)
   Bucket.init
 end

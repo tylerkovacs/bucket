@@ -1,8 +1,10 @@
-require File.join(File.dirname(__FILE__), 'test', 'validations')
+require File.join(File.dirname(__FILE__), 'test', 'validation')
+require File.join(File.dirname(__FILE__), 'test', 'serialization')
 
 class Bucket
   class Test
-    include Bucket::Test::Validations
+    include Bucket::Test::Validation
+    include Bucket::Test::Serialization
 
     class DuplicateTestNameException < StandardError; end
     class UnknownTestException < StandardError; end
@@ -18,8 +20,7 @@ class Bucket
     # The Bucket::Test DSL defines tests.
     #
     # Example:
-    # create_bucket_test do
-    #   name 'color test'
+    # create_bucket_test :color_test do
     #   values ['red', 'green', 'blue']
     #   default 'red'
     #   start_at '2010/07/20 03:00:00'
@@ -149,6 +150,23 @@ class Bucket
         @@tests
       end
 
+      def number_of_tests
+        @@tests.length
+      end
+
+      def clear!
+        @@tests.clear
+      end
+
+      def add_test_to_local_cache(test)
+        if @@tests[test.name]
+          raise Bucket::Test::DuplicateTestNameException, 
+            "test named #{name} already exists"
+        end
+
+        @@tests[test.name] = test
+      end
+
       def from_file(filename)
         from_string(File.read(filename))
       end
@@ -158,7 +176,8 @@ class Bucket
       end
 
       def create_bucket_test(name, &block)
-        Test.add_test(name, &block)
+        test = Test.add_test(name, &block)
+        Test.add_test_to_local_cache(test)
       end
 
       def add_test(name, &block)
@@ -166,14 +185,6 @@ class Bucket
         test.instance_eval(&block)
         test.name(name) if name
         test.validate
-
-        if @@tests[test.name]
-          raise Bucket::Test::DuplicateTestNameException, 
-            "test named #{name} already exists"
-        end
-
-        @@tests[test.name] = test
-
         test
       end
 
@@ -192,14 +203,6 @@ class Bucket
 
         test.assign
         test
-      end
-
-      def number_of_tests
-        @@tests.length
-      end
-
-      def clear!
-        @@tests.clear
       end
 
       def cookie_name(name)

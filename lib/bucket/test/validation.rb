@@ -1,6 +1,6 @@
 class Bucket
   class Test
-    module Validations
+    module Validation
       def validate
         # Reject test if there are no values supplied
         if !values

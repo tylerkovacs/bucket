@@ -8,10 +8,12 @@ class Bucket
     @@new_assignments = {}
     @@participant_cookie_name = 'bucket_participant'
     @@new_assignments_cookie_name = 'bucket_atr'
+    @@store = nil
 
     ACCESSOR_NAMES = [
       :logger, 
       :config_path, 
+      :store, 
       :participant,
       :assignments,
       :new_assignments,
@@ -37,13 +39,7 @@ class Bucket
 
     module ClassMethods
       def init
-        if !File.exists?(config_path)
-          logger.error("Bucket configuration directory missing: #{config_path}")
-        else
-          Dir.glob(File.join(config_path, "test_*")) do |filename|
-            Test.from_file(filename)
-          end
-        end
+        Bucket.store.read_all_tests
       end
 
       def clear!
