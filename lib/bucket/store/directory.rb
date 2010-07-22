@@ -1,3 +1,5 @@
+require 'fileutils'
+
 class Bucket
   class Store
     class Directory
@@ -6,7 +8,7 @@ class Bucket
 
         if !File.exists?(@directory_name)
           Bucket.logger.error("Bucket directory missing: #{@directory_name}")
-          Dir.mkdir_p(@directory_name)
+          FileUtils.mkdir_p(@directory_name)
         end
       end
 
