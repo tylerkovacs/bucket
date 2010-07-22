@@ -7,7 +7,7 @@ describe Bucket::Frameworks::Rails::Helpers do
 
   before(:each) do
     Bucket.clear!
-    @test = Bucket::Test.from_string <<-EOF
+    @test = Bucket::Test.from_dsl <<-EOF
       create_bucket_test :test_name do
         values [:red, :green, :blue]
       end
@@ -17,7 +17,11 @@ describe Bucket::Frameworks::Rails::Helpers do
   describe 'bucket_test' do
     it 'should return the test with the matched name' do
       test = bucket_test :test_name
-      test.should == @test
+      test.name.should == :test_name
+      test.values.should == [:red, :green, :blue]
+      test.default.should be_nil
+      test.start_at.should be_nil
+      test.end_at.should be_nil
     end
 
     it 'should create and return a new test if no match' do
@@ -26,7 +30,7 @@ describe Bucket::Frameworks::Rails::Helpers do
         values [:red, :green, :blue, :cyan]
       end
       Bucket::Test.number_of_tests.should == 2
-      test = Bucket::Test.get(:new_test_name)
+      test = Bucket::Test.get_test(:new_test_name)
       test.values.should == [:red, :green, :blue, :cyan]
     end
 
@@ -49,16 +53,3 @@ describe Bucket::Frameworks::Rails::Helpers do
     end
   end
 end
-
-
-=begin
-test = Bucket::Test.get :test_name
-test.assign(:red)
-
-or
-
-Bucket::Test.get(:test_name).assign(:red)
-
-- neither will work in integration tests
-
-=end

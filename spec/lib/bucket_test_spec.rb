@@ -10,21 +10,28 @@ describe Bucket::Test do
         values [1, 2, 3]
       end
     EOF
-    @test = Bucket::Test.from_string(@definition)
+    @test = Bucket::Test.from_dsl(@definition)
   end
 
   describe 'get' do
     it 'should return a test with a matching name' do
-      Bucket::Test.get(:test_name).should == @test
+      test = Bucket::Test.get_test(:test_name)
+      test.name.should == :test_name
+      test.values.should == [1, 2, 3]
     end
 
     it 'should return nil if no match' do
-      Bucket::Test.get('no such test').should be_nil
+      Bucket::Test.get_test('no such test').should be_nil
     end
+  end
 
-    it 'should allow tests changes to hold in future gets' do
-      Bucket::Test.get(:test_name).values [1,2]
-      Bucket::Test.get(:test_name).values.should == [1,2]
+  describe 'save' do
+    it 'should allow tests changes to written to store' do
+      test = Bucket::Test.get_test(:test_name)
+      test.values [1,2]
+      test.save
+
+      Bucket::Test.get_test(:test_name).values.should == [1,2]
     end
   end
 
@@ -47,7 +54,7 @@ describe Bucket::Test do
 
       it 'should not allow multiple tests with the same name' do
         lambda {
-          @test2 = Bucket::Test.from_string <<-EOF
+          @test2 = Bucket::Test.from_dsl <<-EOF
             create_bucket_test :test_name do
               values [1, 2, 3]
             end
@@ -56,7 +63,7 @@ describe Bucket::Test do
       end
 
       it 'should allow the name to be specified within the block' do
-        new_test = Bucket::Test.from_string <<-EOF
+        new_test = Bucket::Test.from_dsl <<-EOF
           create_bucket_test :new_test do
             name :new_test
             values [1, 2, 3]
@@ -67,7 +74,7 @@ describe Bucket::Test do
       end
 
       it 'should allow the name to be passed in as the first argument' do
-        new_test = Bucket::Test.from_string <<-EOF
+        new_test = Bucket::Test.from_dsl <<-EOF
           create_bucket_test :new_test do
             values [1, 2, 3]
           end
@@ -122,7 +129,7 @@ describe Bucket::Test do
 
       it 'should not allow missing values' do
         lambda {
-          test = Bucket::Test.from_string <<-EOF
+          test = Bucket::Test.from_dsl <<-EOF
             create_bucket_test :bad do
             end
           EOF
@@ -131,7 +138,7 @@ describe Bucket::Test do
 
       it 'should not allow non-Array values' do
         lambda {
-          test = Bucket::Test.from_string <<-EOF
+          test = Bucket::Test.from_dsl <<-EOF
             create_bucket_test :bad do
               values({1 => 20})
             end
@@ -141,7 +148,7 @@ describe Bucket::Test do
 
       it 'should not allow empty values' do
         lambda {
-          test = Bucket::Test.from_string <<-EOF
+          test = Bucket::Test.from_dsl <<-EOF
             create_bucket_test :bad do
               values []
             end
@@ -159,7 +166,7 @@ describe Bucket::Test do
     end
   end
 
-  describe 'from_string' do
+  describe 'from_dsl' do
     it 'should set supported attribute' do
       @test.name.should == :test_name
       @test.values.should == [1, 2, 3]
@@ -167,32 +174,6 @@ describe Bucket::Test do
 
     it 'should register the new test' do
       Bucket::Test.number_of_tests.should == 1
-    end
-  end
-
-  describe 'from_file' do
-    it 'should read the test definition from a file' do
-      Bucket.clear_test_definitions!
-      Bucket::Test.number_of_tests.should == 0
-
-      Tempfile.open('from_file') do |file|
-        file.write @definition
-        file.fsync
-
-        new_test = Bucket::Test.from_file(file.path)
-        new_test.name.should == :test_name
-        new_test.values.should == [1, 2, 3]
-      end
-
-      Bucket::Test.number_of_tests.should == 1
-    end
-  end
-
-  describe 'clear!' do
-    it 'should remove all registered tests' do
-      Bucket::Test.number_of_tests.should == 1
-      Bucket::Test.clear!
-      Bucket::Test.number_of_tests.should == 0
     end
   end
 
@@ -281,7 +262,8 @@ describe Bucket::Test do
 
     context 'inactive' do
       before(:each) do
-        @test.stub!(:active?).and_return(false)
+        @test.pause
+        @test.active?.should be_false
       end
 
       it 'should return the default value if the test is not active' do
@@ -347,7 +329,11 @@ describe Bucket::Test do
   describe 'bucket_test' do
     it 'should return the test with the matched name' do
       test = Bucket::Test.bucket_test :test_name
-      test.should == @test
+      test.name.should == :test_name
+      test.values.should == [1, 2, 3]
+      test.default.should be_nil
+      test.start_at.should be_nil
+      test.end_at.should be_nil
     end
 
     it 'should create and return a new test if no match' do
@@ -356,7 +342,7 @@ describe Bucket::Test do
         values [1, 2, 3, 4]
       end
       Bucket::Test.number_of_tests.should == 2
-      test = Bucket::Test.get(:new_test_name)
+      test = Bucket::Test.get_test(:new_test_name)
       test.values.should == [1, 2, 3, 4]
     end
 
@@ -484,6 +470,24 @@ describe Bucket::Test do
     it 'should return false if not within time range' do
       @test.stub!(:within_time_range?).and_return(false)
       @test.active?.should be_false
+    end
+
+    it 'should return false if paused' do
+      @test.stub!(:paused?).and_return(true)
+      @test.active?.should be_false
+    end
+  end
+
+  describe 'paused' do
+    it 'should return false for normal test' do
+      @test.paused?.should be_false
+    end
+
+    it 'should return true if paused' do
+      @test.pause
+      @test.paused?.should be_true
+      @test.resume
+      @test.paused?.should be_false
     end
   end
 end

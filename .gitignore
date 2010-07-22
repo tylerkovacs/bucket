@@ -6,3 +6,4 @@ coverage
 pkg
 results
 spec/reports
+spec/config

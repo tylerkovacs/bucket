@@ -10,12 +10,12 @@ describe Bucket::Frameworks::Rails::Filters do
     cookies.clear
     params.clear
 
-    @test1 = Bucket::Test.from_string <<-EOF
+    @test1 = Bucket::Test.from_dsl <<-EOF
       create_bucket_test :test_1 do
         values [1, 2, 3]
       end
     EOF
-    @test2 = Bucket::Test.from_string <<-EOF
+    @test2 = Bucket::Test.from_dsl <<-EOF
       create_bucket_test :test_2 do
         values [4, 5, 6]
       end
@@ -57,8 +57,8 @@ describe Bucket::Frameworks::Rails::Filters do
 
         it 'should restore assignments' do
           bucket_before_filters
-          Bucket::Test.get(@test1.name).value.should == @value1
-          Bucket::Test.get(@test2.name).value.should == @value2
+          Bucket::Test.get_test(@test1.name).value.should == @value1
+          Bucket::Test.get_test(@test2.name).value.should == @value2
         end
 
         it 'should not record them as being assigned this request' do
@@ -74,12 +74,13 @@ describe Bucket::Frameworks::Rails::Filters do
 
           bucket_after_filters
           Bucket.clear_all_but_test_definitions!
-          @test1.stub!(:active?).and_return(false)
+          @test1.pause
+          @test1.active?.should be_false
         end
 
         it 'should restore assignments' do
           bucket_before_filters
-          Bucket::Test.get(@test1.name).value.should be_nil
+          Bucket::Test.get_test(@test1.name).value.should be_nil
         end
 
         it 'should not record them as being assigned this request' do
@@ -116,7 +117,8 @@ describe Bucket::Frameworks::Rails::Filters do
 
       context 'inactive test' do
         before(:each) do
-          @test1.stub!(:active?).and_return(false)
+          @test1.pause
+          @test1.active?.should be_false
         end
 
         it 'should assign value based on a url parameter' do
@@ -179,7 +181,8 @@ describe Bucket::Frameworks::Rails::Filters do
 
       context 'inactive test' do
         before(:each) do
-          @test1.stub!(:active?).and_return(false)
+          @test1.pause
+          @test1.active?.should be_false
         end
 
         it 'should not write assignments to a cookie' do

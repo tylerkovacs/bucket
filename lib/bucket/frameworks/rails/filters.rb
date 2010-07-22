@@ -21,7 +21,7 @@ class Bucket
         end
 
         def bucket_restore_assignments
-          Bucket::Test.all.each do |test_name, test|
+          Bucket::Test.all_tests.each do |test_name, test|
             value = cookies[Bucket::Test.cookie_name(test_name)]
             value = value[:value] if value.is_a?(Hash)
             test.assign(value, {:previously_assigned => true}) if value
@@ -29,7 +29,7 @@ class Bucket
         end
 
         def bucket_assignment_though_url_parameters
-          Bucket::Test.all.each do |test_name, test|
+          Bucket::Test.all_tests.each do |test_name, test|
             value = params[Bucket::Test.cookie_name(test_name)]
             test.force_assign(value) if value
           end
@@ -58,7 +58,7 @@ class Bucket
           end
 
           s = Bucket.new_assignments.keys.map do |test_name| 
-            Bucket::Test.get(test_name).cookie_name
+            Bucket::Test.get_test(test_name).cookie_name
           end.join(',')
           cookies[Bucket.new_assignments_cookie_name] = s if s && !s.empty?
         end

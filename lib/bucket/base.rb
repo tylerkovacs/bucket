@@ -38,10 +38,6 @@ class Bucket
     end
 
     module ClassMethods
-      def init
-        Bucket.store.read_all_tests
-      end
-
       def clear!
         clear_all_but_test_definitions!
         clear_test_definitions!
@@ -54,7 +50,7 @@ class Bucket
       end
 
       def clear_test_definitions!
-        Bucket::Test.clear!
+        Bucket.store.clear!
       end
     end
   end

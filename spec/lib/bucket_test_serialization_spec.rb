@@ -5,7 +5,7 @@ describe Bucket::Test do
   before(:each) do
     Bucket.clear!
 
-    @test = Bucket::Test.from_string <<-EOF
+    @test = Bucket::Test.from_dsl <<-EOF
       create_bucket_test :test_name do
         values [1, 'string', :red]
         default :red
@@ -19,12 +19,13 @@ describe Bucket::Test do
     describe 'to_dsl' do
       it 'should return a dsl for the test' do
         @test.to_dsl.should ==<<-EOF
-create_bucket_test :test_name
+create_bucket_test :test_name do
   name :test_name
   values [1, "string", :red]
   default :red
   start_at "Tue Jul 20 03:00:00 -0700 2010"
   end_at "Tue Jul 20 05:00:00 -0700 2010"
+  paused nil
 end
         EOF
       end

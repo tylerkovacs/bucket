@@ -16,5 +16,4 @@ unless defined?(Bucket)
   end
 
   Bucket.store ||= Bucket::Store::Directory.new(Bucket.config_path)
-  Bucket.init
 end

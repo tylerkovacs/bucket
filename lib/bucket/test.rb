@@ -20,7 +20,7 @@ class Bucket
     # The Bucket::Test DSL defines tests.
     #
     # Example:
-    # create_bucket_test :color_test do
+    # bucket_test :color_test do
     #   values ['red', 'green', 'blue']
     #   default 'red'
     #   start_at '2010/07/20 03:00:00'
@@ -30,13 +30,13 @@ class Bucket
     # Supported Attributes:
     # name       : The name of the test.
     # values : Test options.
-    ATTRIBUTE_NAMES = [:name, :values, :default, :start_at, :end_at]
+    ATTRIBUTE_NAMES = [:name, :values, :default, :start_at, :end_at, :paused]
 
     # Create get/set methods for all methods supported in the DSL.
     ATTRIBUTE_NAMES.each do |attribute_name|
       class_eval <<-EOF
-        def #{attribute_name}(value=nil)
-          if value
+        def #{attribute_name}(value=MAGIC_DEFAULT_VALUE)
+          if value != MAGIC_DEFAULT_VALUE
             @attributes['#{attribute_name}'] = value
             method = "validate_#{attribute_name}_attribute"
             send(method) if respond_to?(method)
@@ -79,8 +79,24 @@ class Bucket
       end
     end
 
+    def paused?
+      paused
+    end
+
+    def pause
+      paused true
+      save
+    end
+
+    def resume
+      paused false
+      save
+    end
+
     def active?
-      if !within_time_range?
+      if paused?
+        false
+      elsif !within_time_range?
         false
       else
         true
@@ -140,44 +156,26 @@ class Bucket
       self.class.cookie_name(name)
     end
 
+    def save
+      Bucket.store.put_test(self)
+    end
+
     # Class Methods
     class << self
-      def get(name)
-        @@tests[name]
+      def get_test(name)
+        Bucket.store.get_test(name)
       end
 
-      def all
-        @@tests
+      def all_tests
+        Bucket.store.all_tests
       end
 
       def number_of_tests
-        @@tests.length
-      end
-
-      def clear!
-        @@tests.clear
-      end
-
-      def add_test_to_local_cache(test)
-        if @@tests[test.name]
-          raise Bucket::Test::DuplicateTestNameException, 
-            "test named #{name} already exists"
-        end
-
-        @@tests[test.name] = test
-      end
-
-      def from_file(filename)
-        from_string(File.read(filename))
-      end
-
-      def from_string(data)
-        instance_eval(data)
+        Bucket.store.number_of_tests
       end
 
       def create_bucket_test(name, &block)
-        test = Test.add_test(name, &block)
-        Test.add_test_to_local_cache(test)
+        Test.add_test(name, &block)
       end
 
       def add_test(name, &block)
@@ -185,20 +183,23 @@ class Bucket
         test.instance_eval(&block)
         test.name(name) if name
         test.validate
+
+        if Bucket.store.has_test?(test.name)
+          raise Bucket::Test::DuplicateTestNameException, 
+            "test named #{name} already exists"
+        else
+          Bucket.store.put_test(test)
+        end
+
         test
       end
 
       def bucket_test(name, &block)
-        test = Bucket::Test.get(name)
+        test = get_test(name)
 
-        test = if !test
-          if block_given?
-            Bucket::Test.create_bucket_test(name, &block)
-          else
-            raise Bucket::Test::UnknownTestException
-          end
-        else
-          test
+        if !test
+          raise Bucket::Test::UnknownTestException if !block_given?
+          test = create_bucket_test(name, &block)
         end
 
         test.assign
