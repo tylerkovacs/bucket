@@ -11,6 +11,9 @@ ENV["BUCKET_ENV"] = "test"
 
 require File.join(File.dirname(__FILE__), '..', 'lib', 'bucket')
 
+# Use the memory store by default so that tests run faster
+Bucket.store = Bucket::Store::Memory.new
+
 Spec::Runner.configure do |config|
   config.before(:each) { }
   config.before(:all) { }

@@ -7,7 +7,7 @@ class Bucket
         @directory_name = directory_name
 
         if !File.exists?(@directory_name)
-          Bucket.logger.error("Bucket directory missing: #{@directory_name}")
+          Bucket.logger.error("Creating missing Bucket configuration directory: #{@directory_name}")
           FileUtils.mkdir_p(@directory_name)
         end
       end
