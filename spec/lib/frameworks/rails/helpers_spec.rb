@@ -7,6 +7,7 @@ describe Bucket::Frameworks::Rails::Helpers do
 
   before(:each) do
     Bucket.clear!
+
     @test = Bucket::Test.from_dsl <<-EOF
       create_bucket_test :test_name do
         values [:red, :green, :blue]
