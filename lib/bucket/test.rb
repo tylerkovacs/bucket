@@ -4,7 +4,9 @@ require File.join(File.dirname(__FILE__), 'test', 'serialization')
 class Bucket
   class Test
     include Bucket::Test::Validation
-    include Bucket::Test::Serialization
+    include Bucket::Test::Serialization::Dsl
+    include Bucket::Test::Serialization::Yaml
+    include Bucket::Test::Serialization::Marshal
 
     class DuplicateTestNameException < StandardError; end
     class UnknownTestException < StandardError; end
