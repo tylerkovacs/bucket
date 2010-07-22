@@ -1,5 +1,9 @@
-require "rubygems"
-require "bundler"
+begin
+  require 'bundler'
+rescue LoadError
+  require 'rubygems'
+  require 'bundler'
+end
 Bundler.setup
 
 require 'spec/autorun'
