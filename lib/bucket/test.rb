@@ -178,11 +178,16 @@ class Bucket
         Test.add_test(name, &block)
       end
 
-      def add_test(name, &block)
+      def define_test(name, &block)
         test = self.new
         test.instance_eval(&block)
         test.name(name) if name
         test.validate
+        test
+      end
+
+      def add_test(name, &block)
+        test = define_test(name, &block)
 
         if Bucket.store.has_test?(test.name)
           raise Bucket::Test::DuplicateTestNameException, 

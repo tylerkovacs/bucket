@@ -12,7 +12,7 @@ class Bucket
       end
 
       def to_dsl
-        dsl = [ "create_bucket_test #{name.inspect} do" ]
+        dsl = [ "define_test #{name.inspect} do" ]
         ATTRIBUTE_NAMES.each do |attribute_name|
           dsl << "  #{attribute_name} #{serialize_attribute(attribute_name)}"
         end

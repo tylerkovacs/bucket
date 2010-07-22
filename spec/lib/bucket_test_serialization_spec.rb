@@ -19,13 +19,11 @@ describe Bucket::Test do
     it 'should return a dsl for the test' do
       t = @test.to_dsl
       t.is_a?(String).should be_true
-      t.should include("create_bucket_test :#{@test.name} do")
+      t.should include("define_test :#{@test.name} do")
     end
 
     it 'should be able to restore test from dsl' do
-      dsl = @test.to_dsl
-      Bucket.store.clear!      
-      dsl = test = Bucket::Test.from_dsl(@test.to_dsl)
+      test = Bucket::Test.from_dsl(@test.to_dsl)
       test.name.should == :test_name
       test.values.should == [1, 'string', :red]
       test.default.should == :red
