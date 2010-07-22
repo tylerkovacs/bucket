@@ -6,6 +6,7 @@ class Bucket
 
         if !File.exists?(@directory_name)
           Bucket.logger.error("Bucket directory missing: #{@directory_name}")
+          Dir.mkdir_p(@directory_name)
         end
       end
 
