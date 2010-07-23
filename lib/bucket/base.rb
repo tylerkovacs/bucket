@@ -9,7 +9,7 @@ class Bucket
     @@participant_cookie_name = 'bucket_participant'
     @@new_assignments_cookie_name = 'bucket_atr'
     @@store = nil
-    @@store_proxy_cache = Bucket::Store::CachingProxy.new(300)
+    @@store_proxy_cache = Bucket::Store::CachingProxy.new(60)
 
     ACCESSOR_NAMES = [
       :logger, 
