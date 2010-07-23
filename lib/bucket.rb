@@ -1,7 +1,7 @@
 unless defined?(Bucket)
+  require File.join(File.dirname(__FILE__), 'bucket', 'store')
   require File.join(File.dirname(__FILE__), 'bucket', 'base')
   require File.join(File.dirname(__FILE__), 'bucket', 'test')
-  require File.join(File.dirname(__FILE__), 'bucket', 'store')
 
   class Bucket
     include Bucket::Base

@@ -9,16 +9,18 @@ class Bucket
     @@participant_cookie_name = 'bucket_participant'
     @@new_assignments_cookie_name = 'bucket_atr'
     @@store = nil
+    @@store_proxy_cache = Bucket::Store::CachingProxy.new(300)
 
     ACCESSOR_NAMES = [
       :logger, 
       :config_path, 
       :store, 
+      :store_proxy_cache, 
       :participant,
       :assignments,
       :new_assignments,
       :participant_cookie_name,
-      :new_assignments_cookie_name
+      :new_assignments_cookie_name,
     ]
   
     def self.included(base)
@@ -50,7 +52,7 @@ class Bucket
       end
 
       def clear_test_definitions!
-        Bucket.store.clear!
+        Bucket.store_proxy_cache.clear!
       end
     end
   end

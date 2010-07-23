@@ -61,7 +61,7 @@ class Bucket
       end
 
       def add_test_name(name)
-        names = [ get_all_test_names, name.to_s ].flatten.uniq
+        names = [ get_all_test_names, moneta_key(name) ].flatten.uniq
         set_all_test_names(names)
       end
 

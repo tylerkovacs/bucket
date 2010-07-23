@@ -159,21 +159,21 @@ class Bucket
     end
 
     def save
-      Bucket.store.put_test(self)
+      Bucket.store_proxy_cache.put_test(self)
     end
 
     # Class Methods
     class << self
       def get_test(name)
-        Bucket.store.get_test(name)
+        Bucket.store_proxy_cache.get_test(name)
       end
 
       def all_tests
-        Bucket.store.all_tests
+        Bucket.store_proxy_cache.all_tests
       end
 
       def number_of_tests
-        Bucket.store.number_of_tests
+        Bucket.store_proxy_cache.number_of_tests
       end
 
       def create_bucket_test(name, &block)
@@ -191,11 +191,11 @@ class Bucket
       def add_test(name, &block)
         test = define_test(name, &block)
 
-        if Bucket.store.has_test?(test.name)
+        if Bucket.store_proxy_cache.has_test?(test.name)
           raise Bucket::Test::DuplicateTestNameException, 
             "test named #{name} already exists"
         else
-          Bucket.store.put_test(test)
+          Bucket.store_proxy_cache.put_test(test)
         end
 
         test
