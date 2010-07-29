@@ -1,4 +1,7 @@
 source "http://rubygems.org"
-gem "rspec", :require => "spec"
 gem "moneta"
-#gem "ruby-debug"
+
+group :test do
+  gem "rspec", :require => "spec"
+  gem "ruby-debug"
+end
