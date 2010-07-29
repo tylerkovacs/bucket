@@ -5,6 +5,7 @@ require 'rake/testtask'
 # Required for Hudson to show build log
 if ENV['CI_REPORTS']
   system("cp spec/ci.spec.opts spec/spec.opts")
+  system("cat Gemfile | grep -v ruby-debug > gout; mv -f gout Gemfile")
   puts `ruby -v`
   gem 'ci_reporter'
   require 'ci/reporter/rake/rspec'
