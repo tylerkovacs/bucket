@@ -2,10 +2,10 @@ require File.join(File.dirname(__FILE__), 'rails', 'filters')
 require File.join(File.dirname(__FILE__), 'rails', 'helpers')
 
 # Default to the Rails logger.
-Bucket.logger = RAILS_DEFAULT_LOGGER
+Bucket.logger = Rails.logger
 
-# Set config path based on RAILS_ROOT
-Bucket.config_path = File.join(RAILS_ROOT, "config", "bucket")
+# Set config path based on Rails.root
+Bucket.config_path = Rails.root.join("config", "bucket").to_s
 
 # Keep all interactions with Rails classes here so that the individual
 # libraries under rails/ can be unit tests without pulling in the whole 
