@@ -8,7 +8,13 @@ unless defined?(Bucket)
   end
 
   if defined?(Rails)
-    require File.join(File.dirname(__FILE__), 'bucket', 'frameworks', 'rails')
+    # Rails 2 loads the gem after the Rails framework is initialized
+    # Rails 3 loads the gem before the Rails framewor is initialized, so
+    #   add the following line to config/environment.rb in Rails 3:
+    #   require 'bucket/frameworks/rails'
+    if Rails::VERSION::STRING =~ /^2/
+      require File.join(File.dirname(__FILE__), 'bucket', 'frameworks', 'rails')
+    end
   end
 
   if ENV["BUCKET_ENV"] == "test"
