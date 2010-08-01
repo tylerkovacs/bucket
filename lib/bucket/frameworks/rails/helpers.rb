@@ -11,10 +11,6 @@ class Bucket
         end
 
         def bucket_initialize_javascript(key, options={})
-          javascript_tag(bucket_initialize_inner(key, options))
-        end
-
-        def bucket_initialize_inner(key, options={})
           inner = [ "Bucket.recorder.initialize({" ]
           options.merge({'key' => key}).each do |key, value|
             inner << "  #{key}: '#{escape_javascript(value)}'"
