@@ -51,10 +51,10 @@ describe Bucket::Frameworks::Rails::Helpers do
       test.values.should include(test.value)
     end
 
-    it 'should record as being assigned in this request' do
-      Bucket.new_assignments[@test.name].should be_nil
+    it 'should record as being participated in this request' do
+      Bucket.new_participations[@test.name].should be_nil
       test = bucket_test :test_name
-      Bucket.new_assignments[@test.name].should_not be_nil
+      Bucket.new_participations[@test.name].should_not be_nil
     end
   end
 

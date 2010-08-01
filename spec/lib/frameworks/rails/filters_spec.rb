@@ -24,15 +24,15 @@ describe Bucket::Frameworks::Rails::Filters do
 
   context 'before filters' do
     describe 'bucket_clear_state' do
-      it 'should clear the new assignment cookie' do
-        cookies[Bucket.new_assignments_cookie_name] = 'foo'
+      it 'should clear the new participation cookie' do
+        cookies[Bucket.new_participation_cookie_name] = 'foo'
         bucket_before_filters
-        cookies[Bucket.new_assignments_cookie_name].should be_nil
+        cookies[Bucket.new_participation_cookie_name].should be_nil
       end
     end
 
     describe 'bucket_participant' do
-      it 'should assign new bucket_participant if none exists' do 
+      it 'should participate new bucket_participant if none exists' do 
         Bucket.participant.should be_nil
         bucket_before_filters
         Bucket.participant.should == 'mkkV9YNS70946Q=='
@@ -45,32 +45,32 @@ describe Bucket::Frameworks::Rails::Filters do
       end
     end
 
-    describe 'bucket_restore_assignments' do
+    describe 'bucket_restore_participations' do
       context 'active test' do
         before(:each) do
-          @value1 = @test1.assign
-          @value2 = @test2.assign
+          @value1 = @test1.participate
+          @value2 = @test2.participate
 
           bucket_after_filters
           Bucket.clear_all_but_test_definitions!
         end
 
-        it 'should restore assignments' do
+        it 'should restore participations' do
           bucket_before_filters
           Bucket::Test.get_test(@test1.name).value.should == @value1
           Bucket::Test.get_test(@test2.name).value.should == @value2
         end
 
-        it 'should not record them as being assigned this request' do
-          Bucket.new_assignments[@test1.name].should be_nil 
+        it 'should not record them as being participated this request' do
+          Bucket.new_participations[@test1.name].should be_nil 
           bucket_before_filters
-          Bucket.new_assignments[@test1.name].should be_nil 
+          Bucket.new_participations[@test1.name].should be_nil 
         end
       end
 
       context 'inactive test' do
         before(:each) do
-          @value1 = @test1.assign
+          @value1 = @test1.participate
 
           bucket_after_filters
           Bucket.clear_all_but_test_definitions!
@@ -78,40 +78,40 @@ describe Bucket::Frameworks::Rails::Filters do
           @test1.active?.should be_false
         end
 
-        it 'should restore assignments' do
+        it 'should restore participations' do
           bucket_before_filters
           Bucket::Test.get_test(@test1.name).value.should be_nil
         end
 
-        it 'should not record them as being assigned this request' do
-          Bucket.new_assignments[@test1.name].should be_nil 
+        it 'should not record them as being participated this request' do
+          Bucket.new_participations[@test1.name].should be_nil 
           bucket_before_filters
-          Bucket.new_assignments[@test1.name].should be_nil 
+          Bucket.new_participations[@test1.name].should be_nil 
         end
       end
     end
 
-    describe 'bucket_assignment_though_url_parameters' do
+    describe 'bucket_participation_though_url_parameters' do
       context 'active test' do
-        it 'should assign value based on a url parameter' do
-          Bucket.assignments[@test1.name].should be_nil
+        it 'should participate value based on a url parameter' do
+          Bucket.participations[@test1.name].should be_nil
           params[@test1.cookie_name] = 2
           bucket_before_filters
-          Bucket.assignments[@test1.name].should == 2
+          Bucket.participations[@test1.name].should == 2
         end
 
         it 'should override a value if already set' do
-          Bucket.assignments[@test1.name] = 1
+          Bucket.participations[@test1.name] = 1
           params[@test1.cookie_name] = 2
           bucket_before_filters
-          Bucket.assignments[@test1.name].should == 2
+          Bucket.participations[@test1.name].should == 2
         end
 
-        it 'should record them as being assigned this request' do
-          Bucket.new_assignments[@test1.name].should be_nil
+        it 'should record them as being participated this request' do
+          Bucket.new_participations[@test1.name].should be_nil
           params[@test1.cookie_name] = 2
           bucket_before_filters
-          Bucket.new_assignments[@test1.name].should == 2
+          Bucket.new_participations[@test1.name].should == 2
         end
       end
 
@@ -121,25 +121,25 @@ describe Bucket::Frameworks::Rails::Filters do
           @test1.active?.should be_false
         end
 
-        it 'should assign value based on a url parameter' do
-          Bucket.assignments[@test1.name].should be_nil
+        it 'should participate value based on a url parameter' do
+          Bucket.participations[@test1.name].should be_nil
           params[@test1.cookie_name] = 2
           bucket_before_filters
-          Bucket.assignments[@test1.name].should == 2
+          Bucket.participations[@test1.name].should == 2
         end
 
         it 'should override a value if already set' do
-          Bucket.assignments[@test1.name] = 1
+          Bucket.participations[@test1.name] = 1
           params[@test1.cookie_name] = 2
           bucket_before_filters
-          Bucket.assignments[@test1.name].should == 2
+          Bucket.participations[@test1.name].should == 2
         end
 
-        it 'should record them as being assigned this request' do
-          Bucket.new_assignments[@test1.name].should be_nil
+        it 'should record them as being participated this request' do
+          Bucket.new_participations[@test1.name].should be_nil
           params[@test1.cookie_name] = 2
           bucket_before_filters
-          Bucket.new_assignments[@test1.name].should == 2
+          Bucket.new_participations[@test1.name].should == 2
         end
       end
     end
@@ -155,11 +155,11 @@ describe Bucket::Frameworks::Rails::Filters do
       end
     end
 
-    describe 'bucket_persist_assignments' do
+    describe 'bucket_persist_participations' do
       context 'active test' do
-        it 'should write assignments to a cookie' do
-          @test1.assign
-          @test2.assign
+        it 'should write participations to a cookie' do
+          @test1.participate
+          @test2.participate
           bucket_after_filters
 
           cookie1 = cookies[@test1.cookie_name]
@@ -169,11 +169,11 @@ describe Bucket::Frameworks::Rails::Filters do
           @test2.values.should include(cookie2[:value])
         end
 
-        it 'should write new assignments to the new assignments cookie' do
-          @test1.assign
-          @test2.assign
+        it 'should write new participations to the new participations cookie' do
+          @test1.participate
+          @test2.participate
           bucket_after_filters
-          cookie = cookies[Bucket.new_assignments_cookie_name]
+          cookie = cookies[Bucket.new_participation_cookie_name]
           expected = [@test1.cookie_name, @test2.cookie_name].sort
           cookie.split(',').sort.should == expected
         end
@@ -185,16 +185,16 @@ describe Bucket::Frameworks::Rails::Filters do
           @test1.active?.should be_false
         end
 
-        it 'should not write assignments to a cookie' do
-          @test1.assign
+        it 'should not write participations to a cookie' do
+          @test1.participate
           bucket_after_filters
           cookies[@test1.cookie_name].should be_nil
         end
 
-        it 'should not write new assignments to the new assignments cookie' do
-          @test1.assign
+        it 'should not write new participations to the new participations cookie' do
+          @test1.participate
           bucket_after_filters
-          cookies[Bucket.new_assignments_cookie_name].should be_nil
+          cookies[Bucket.new_participation_cookie_name].should be_nil
         end
       end
     end

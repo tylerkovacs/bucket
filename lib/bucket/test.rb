@@ -55,7 +55,7 @@ class Bucket
     end
 
     def value
-      Bucket.assignments[name]
+      Bucket.participations[name]
     end
 
     def values_include?(value)
@@ -105,29 +105,29 @@ class Bucket
       end
     end
 
-    def force_assign(value=MAGIC_DEFAULT_VALUE, options={})
-      assign(value, options.merge({:force => true}))
+    def force_participate(value=MAGIC_DEFAULT_VALUE, options={})
+      participate(value, options.merge({:force => true}))
     end
 
-    def assign(value=MAGIC_DEFAULT_VALUE, options={})
+    def participate(value=MAGIC_DEFAULT_VALUE, options={})
       return default_value if !active? && !options[:force]
 
-      if !Bucket.assignments.has_key?(name) || options[:force]
+      if !Bucket.participations.has_key?(name) || options[:force]
         if value = values_include?(value)
-          Bucket.assignments[name] = value
+          Bucket.participations[name] = value
         else
-          Bucket.assignments[name] = assign_uncached
+          Bucket.participations[name] = participate_uncached
         end
 
-        unless options[:previously_assigned]
-          Bucket.new_assignments[name] = Bucket.assignments[name]
+        unless options[:previously_participated]
+          Bucket.new_participations[name] = Bucket.participations[name]
         end
       end
 
-      Bucket.assignments[name]
+      Bucket.participations[name]
     end
 
-    def assign_uncached
+    def participate_uncached
       if !@weights.empty?
         random = (0..values.length-1).to_a.inject(0.0) do |t,i| 
           t + @weights[i]
@@ -209,7 +209,7 @@ class Bucket
           test = create_bucket_test(name, &block)
         end
 
-        test.assign
+        test.participate
         test
       end
 

@@ -6,12 +6,12 @@ class Bucket
         def bucket_before_filters
           bucket_clear_state
           bucket_participant
-          bucket_restore_assignments
-          bucket_assignment_though_url_parameters
+          bucket_restore_participations
+          bucket_participation_though_url_parameters
         end
 
         def bucket_clear_state
-          cookies.delete(Bucket.new_assignments_cookie_name)
+          cookies.delete(Bucket.new_participation_cookie_name)
           Bucket.clear_all_but_test_definitions!
         end
 
@@ -20,18 +20,18 @@ class Bucket
             ActiveSupport::SecureRandom.base64(10)
         end
 
-        def bucket_restore_assignments
+        def bucket_restore_participations
           Bucket::Test.all_tests.each do |test_name, test|
             value = cookies[Bucket::Test.cookie_name(test_name)]
             value = value[:value] if value.is_a?(Hash)
-            test.assign(value, {:previously_assigned => true}) if value
+            test.participate(value, {:previously_participated => true}) if value
           end
         end
 
-        def bucket_assignment_though_url_parameters
+        def bucket_participation_though_url_parameters
           Bucket::Test.all_tests.each do |test_name, test|
             value = params[Bucket::Test.cookie_name(test_name)]
-            test.force_assign(value) if value
+            test.force_participate(value) if value
           end
         end
 
@@ -39,7 +39,7 @@ class Bucket
         def bucket_after_filters
           expiry_timestamp = Bucket::Test.cookie_expires
           bucket_persist_participant(expiry_timestamp)
-          bucket_persist_assignments(expiry_timestamp)
+          bucket_persist_participations(expiry_timestamp)
         end
 
         def bucket_persist_participant(expiry_timestamp)
@@ -49,18 +49,18 @@ class Bucket
           }
         end
 
-        def bucket_persist_assignments(expiry_timestamp)
-          Bucket.assignments.each do |test_name, value|
+        def bucket_persist_participations(expiry_timestamp)
+          Bucket.participations.each do |test_name, value|
             cookies[Bucket::Test.cookie_name(test_name)] = {
               :value => value,
               :expires => expiry_timestamp
             }
           end
 
-          s = Bucket.new_assignments.keys.map do |test_name| 
+          s = Bucket.new_participations.keys.map do |test_name| 
             Bucket::Test.get_test(test_name).cookie_name
           end.join(',')
-          cookies[Bucket.new_assignments_cookie_name] = s if s && !s.empty?
+          cookies[Bucket.new_participation_cookie_name] = s if s && !s.empty?
         end
       end
     end

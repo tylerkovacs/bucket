@@ -4,10 +4,10 @@ class Bucket
   module Base
     @@config_path = File.join("config", "bucket")
     @@logger = Logger.new(STDOUT)
-    @@assignments = {}
-    @@new_assignments = {}
+    @@participations = {}
+    @@new_participations = {}
     @@participant_cookie_name = 'bucket_participant'
-    @@new_assignments_cookie_name = 'bucket_atr'
+    @@new_participation_cookie_name = 'bucket_np'
     @@store = nil
     @@store_proxy_cache = Bucket::Store::CachingProxy.new(60)
 
@@ -17,10 +17,10 @@ class Bucket
       :store, 
       :store_proxy_cache, 
       :participant,
-      :assignments,
-      :new_assignments,
+      :participations,
+      :new_participations,
       :participant_cookie_name,
-      :new_assignments_cookie_name,
+      :new_participation_cookie_name,
     ]
   
     def self.included(base)
@@ -47,8 +47,8 @@ class Bucket
 
       def clear_all_but_test_definitions!
         Bucket.participant = nil
-        Bucket.assignments.clear
-        Bucket.new_assignments.clear
+        Bucket.participations.clear
+        Bucket.new_participations.clear
       end
 
       def clear_test_definitions!

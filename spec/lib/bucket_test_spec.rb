@@ -156,7 +156,7 @@ describe Bucket::Test do
         }.should raise_error(Bucket::Test::InvalidTestConfigurationException)
       end
 
-      it 'should allow weights to be assigned to values' do
+      it 'should allow weights to be participated to values' do
         @test.values [
           {:value => 1, :weight => 2},
           {:value => 2}
@@ -177,29 +177,29 @@ describe Bucket::Test do
     end
   end
 
-  describe 'assign' do
+  describe 'participate' do
     context 'active' do
       it 'should pick a value at random' do
-        value = @test.assign
+        value = @test.participate
         value.should_not be_nil
         @test.values.should include(value)
       end
 
-      it 'should record in new_assignments by default' do
-        Bucket.new_assignments[@test.name].should be_nil
-        value = @test.assign
-        Bucket.new_assignments[@test.name].should == value
+      it 'should record in new_participations by default' do
+        Bucket.new_participations[@test.name].should be_nil
+        value = @test.participate
+        Bucket.new_participations[@test.name].should == value
       end
 
-      it 'should not record in new_assignments with previously_assigned argument' do
-        Bucket.new_assignments[@test.name].should be_nil
-        value = @test.assign(1, {:previously_assigned => true})
-        Bucket.new_assignments[@test.name].should be_nil
+      it 'should not record in new_participations with previously_participated argument' do
+        Bucket.new_participations[@test.name].should be_nil
+        value = @test.participate(1, {:previously_participated => true})
+        Bucket.new_participations[@test.name].should be_nil
       end
 
       it 'should pick a value using an even distribution by default' do
         frequencies = Hash.new(0)
-        1000.times { frequencies[@test.assign_uncached] += 1}
+        1000.times { frequencies[@test.participate_uncached] += 1}
         frequencies.values.each do |val|
           val.should be_close(333, 150) 
         end
@@ -211,7 +211,7 @@ describe Bucket::Test do
           {:value => 2}
         ]
         frequencies = Hash.new(0)
-        1000.times { frequencies[@test.assign_uncached] += 1}
+        1000.times { frequencies[@test.participate_uncached] += 1}
         frequencies[1].should be_close(666, 150)
         frequencies[2].should be_close(333, 150)
       end
@@ -223,38 +223,38 @@ describe Bucket::Test do
           {:value => 3, :weight => 3.5}
         ]
         frequencies = Hash.new(0)
-        1000.times { frequencies[@test.assign_uncached] += 1}
+        1000.times { frequencies[@test.participate_uncached] += 1}
         frequencies[1].should be_close(100, 150)
         frequencies[2].should be_close(200, 150)
         frequencies[3].should be_close(700, 150)
       end
 
       it 'should accept a value when passed in' do
-        value = @test.assign(2)
+        value = @test.participate(2)
         value.should == 2
       end
 
       it 'should not override a value if already set by default' do
-        value = @test.assign(2)
+        value = @test.participate(2)
         value.should == 2
-        value = @test.assign(3)
+        value = @test.participate(3)
         value.should == 2
       end
 
       it 'should override a value if already set by default using force' do
-        value = @test.assign(2)
+        value = @test.participate(2)
         value.should == 2
-        value = @test.force_assign(3)
+        value = @test.force_participate(3)
         value.should == 3
       end
 
       it 'should accept a value when passed in as a string' do
-        value = @test.assign('2')
+        value = @test.participate('2')
         value.should == 2
       end
 
       it 'should not accept a value if not a valid value' do
-        value = @test.assign(-1)
+        value = @test.participate(-1)
         value.should_not == -1
         @test.values.should include(value)
       end
@@ -267,20 +267,20 @@ describe Bucket::Test do
       end
 
       it 'should return the default value if the test is not active' do
-        @test.assign.should == @test.default_value
+        @test.participate.should == @test.default_value
       end
 
-      it 'should not assign a persistent value if test is not active' do
-        Bucket.assignments[@test.name].should be_nil
-        Bucket.new_assignments[@test.name].should be_nil
+      it 'should not participate a persistent value if test is not active' do
+        Bucket.participations[@test.name].should be_nil
+        Bucket.new_participations[@test.name].should be_nil
       end
 
-      it 'should not allow a manual assignment by default' do
-        @test.assign(2).should == 1
+      it 'should not allow a manual participation by default' do
+        @test.participate(2).should == 1
       end
 
-      it 'should allow a manual assignment when force option used' do
-        @test.assign(2, {:force => true}).should == 2
+      it 'should allow a manual participation when force option used' do
+        @test.participate(2, {:force => true}).should == 2
       end
     end
   end
@@ -304,9 +304,9 @@ describe Bucket::Test do
     end
   end
 
-  describe 'assigned values' do
+  describe 'participated values' do
     it 'should return the selected value' do
-      value = @test.assign
+      value = @test.participate
       value.should_not be_nil
       @test.values.should include(value)
     end
@@ -360,7 +360,7 @@ describe Bucket::Test do
   end
 
   describe 'default value' do
-    it 'should assign a default value' do
+    it 'should participate a default value' do
       @test.default 2
       @test.default_value.should == 2
     end
@@ -369,14 +369,14 @@ describe Bucket::Test do
       @test.default_value.should == 1
     end
 
-    it 'should not assign a default value if default is invalid' do
+    it 'should not participate a default value if default is invalid' do
       @test.default 4
       @test.default_value.should == 1
     end
   end
 
   describe 'start and end times' do
-    it 'should allow you to assign a start_at that gets converted to a Time' do
+    it 'should allow you to participate a start_at that gets converted to a Time' do
       ts = '2010/07/20 03:00'
       @test.start_at ts
       @test.start_at.should == Time.parse(ts)
@@ -388,7 +388,7 @@ describe Bucket::Test do
       @test.start_at.should == ts
     end
 
-    it 'should allow you to assign an end_at that gets converted to a Time' do
+    it 'should allow you to participate an end_at that gets converted to a Time' do
       ts = '2010/07/20 05:00'
       @test.end_at ts
       @test.end_at.should == Time.parse(ts)
