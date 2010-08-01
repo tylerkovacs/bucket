@@ -6,10 +6,6 @@ class Bucket
           Bucket::Test.bucket_test(name, &block)
         end
 
-        def bucket_include_javascript
-          javascript_include_tag :bucket
-        end
-
         def bucket_initialize_javascript(key, options={})
           inner = [ "Bucket.recorder.initialize({" ]
           options.merge({'key' => key}).each do |key, value|

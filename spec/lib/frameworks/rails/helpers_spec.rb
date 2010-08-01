@@ -58,13 +58,6 @@ describe Bucket::Frameworks::Rails::Helpers do
     end
   end
 
-  describe 'bucket_include_javascript' do
-    it 'should call javascript_include_tag' do
-      self.should_receive(:javascript_include_tag).with(:bucket).and_return(nil)
-      bucket_include_javascript
-    end
-  end
-
   describe 'bucket_initialize_javascript' do
     it 'should initialize recorder with supplied key within javascript tag' do
       bucket_initialize_javascript('abcdef').should == "Bucket.recorder.initialize({\n  key: 'abcdef'\n});"
