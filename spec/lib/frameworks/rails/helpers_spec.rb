@@ -2,6 +2,20 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'spec_helper')
 require File.join(File.dirname(__FILE__), 'rails_spec_helper')
 require File.join(File.dirname(__FILE__), '..', '..', '..', '..', 'lib', 'bucket', 'frameworks', 'rails', 'helpers')
 
+def escape_javascript(value)
+  value
+end
+
+def javascript_tag(value)
+  return <<-EOF
+<script type="text/javascript">
+  //<![CDATA[
+    #{value}
+  //]]>
+</script>
+  EOF
+end
+
 describe Bucket::Frameworks::Rails::Helpers do
   include Bucket::Frameworks::Rails::Helpers
 
@@ -51,6 +65,35 @@ describe Bucket::Frameworks::Rails::Helpers do
       Bucket.new_assignments[@test.name].should be_nil
       test = bucket_test :test_name
       Bucket.new_assignments[@test.name].should_not be_nil
+    end
+  end
+
+  describe 'bucket_include_javascript' do
+    it 'should call javascript_include_tag' do
+      self.should_receive(:javascript_include_tag).with(:bucket).and_return(nil)
+      bucket_include_javascript
+    end
+  end
+
+  describe 'bucket_initialize_inner' do
+    it 'should initialize the recorder with the supplied key' do
+      bucket_initialize_inner('abcdef').should == "Bucket.recorder.initialize({\n  key: 'abcdef'\n});"
+    end
+
+    it 'should include supplied options in the initialization object' do
+      bucket_initialize_inner('abcdef', 
+        {'foo' => 'bar'}
+      ).should == "Bucket.recorder.initialize({\n  foo: 'bar'\n  key: 'abcdef'\n});"
+    end
+  end
+
+  describe 'bucket_initialize_javascript' do
+    it 'should initialize recorder with supplied key within javascript tag' do
+      bucket_initialize_javascript('abcdef').should == "<script type=\"text/javascript\">\n  //<![CDATA[\n    Bucket.recorder.initialize({\n  key: 'abcdef'\n});\n  //]]>\n</script>\n"
+    end
+
+    it 'should initialize recorder with supplied key and options within javascript tag' do
+      bucket_initialize_javascript('abcdef', {'foo' => 'bar'}).should == "<script type=\"text/javascript\">\n  //<![CDATA[\n    Bucket.recorder.initialize({\n  foo: 'bar'\n  key: 'abcdef'\n});\n  //]]>\n</script>\n"
     end
   end
 end
