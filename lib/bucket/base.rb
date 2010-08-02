@@ -7,9 +7,11 @@ class Bucket
     @@participations = {}
     @@new_participations = {}
     @@conversions = []
-    @@participant_cookie_name = 'bucket_participant'
-    @@new_participation_cookie_name = 'bucket_np'
-    @@conversion_cookie_name = 'bucket_conv'
+    @@cookie_names = {
+      :participant => 'bucket_participant',
+      :participations => 'bucket_np',
+      :conversions => 'bucket_conv'
+    }
     @@store = nil
     @@store_proxy_cache = Bucket::Store::CachingProxy.new(60)
 
@@ -21,10 +23,8 @@ class Bucket
       :participant,
       :participations,
       :new_participations,
-      :participant_cookie_name,
-      :new_participation_cookie_name,
-      :conversions,
-      :conversion_cookie_name
+      :cookie_names,
+      :conversions
     ]
   
     def self.included(base)
@@ -60,7 +60,21 @@ class Bucket
         Bucket.store_proxy_cache.clear!
       end
 
-      def initialize_javascript(key, options={}, cookie_names={})
+      # From Rails ActionView::Helper.escape_javascript
+      JS_ESCAPE_MAP = { '\\' => '\\\\', '</' => '<\/', "\r\n" => '\n', "\n" => '\n', "\r" => '\n', '"' => '\\"', "'" => "\\'" }
+      def escape_javascript(js)
+        if js
+          js.gsub(/(\\|<\/|\r\n|[\n\r"'])/) { JS_ESCAPE_MAP[$1] }
+        else
+          ''
+        end
+      end
+
+      def cookie_name(name)
+        cookie_names[name]
+      end
+
+      def initialize_javascript(key, options={})
         inner = [ "Bucket.recorder.initialize({" ]
         options.merge({'key' => key}).each do |key, value|
           inner << "  #{key}: '#{escape_javascript(value)}'"

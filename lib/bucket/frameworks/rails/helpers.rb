@@ -6,8 +6,8 @@ class Bucket
           Bucket::Test.bucket_test(name, &block)
         end
 
-        def bucket_initialize_javascript(key, options={}, cookie_names={})
-          Bucket.initialize_javascript(key, options, cookie_names)
+        def bucket_initialize_javascript(key, options={})
+          Bucket.initialize_javascript(key, options)
         end
       end
     end

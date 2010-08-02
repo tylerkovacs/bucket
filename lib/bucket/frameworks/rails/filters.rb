@@ -11,12 +11,12 @@ class Bucket
         end
 
         def bucket_clear_state
-          cookies.delete(Bucket.new_participation_cookie_name)
+          cookies.delete(Bucket.cookie_name(:participations))
           Bucket.clear_all_but_test_definitions!
         end
 
         def bucket_participant
-          Bucket.participant = cookies[Bucket.participant_cookie_name] || 
+          Bucket.participant = cookies[Bucket.cookie_name(:participant)] || 
             ActiveSupport::SecureRandom.base64(10)
         end
 
@@ -44,7 +44,7 @@ class Bucket
         end
 
         def bucket_persist_participant(expiry_timestamp)
-          cookies[Bucket.participant_cookie_name] = {
+          cookies[Bucket.cookie_name(:participant)] = {
             :value => Bucket.participant,
             :expires => expiry_timestamp
           }
@@ -61,7 +61,7 @@ class Bucket
           value = Bucket.new_participations.keys.map do |test_name| 
             Bucket::Test.get_test(test_name).cookie_name
           end.join(',')
-          cookies[Bucket.new_participation_cookie_name] = {
+          cookies[Bucket.cookie_name(:participations)] = {
             :value => value,
             :expires => expiry_timestamp
           }
@@ -72,7 +72,7 @@ class Bucket
             test.cookie_name
           end.join(',')
 
-          cookies[Bucket.conversion_cookie_name] = {
+          cookies[Bucket.cookie_name(:conversions)] = {
             :value => value,
             :expires => expiry_timestamp
           }

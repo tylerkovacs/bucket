@@ -25,9 +25,9 @@ describe Bucket::Frameworks::Rails::Filters do
   context 'before filters' do
     describe 'bucket_clear_state' do
       it 'should clear the new participation cookie' do
-        cookies[Bucket.new_participation_cookie_name] = 'foo'
+        cookies[Bucket.cookie_name(:participations)] = 'foo'
         bucket_before_filters
-        cookies[Bucket.new_participation_cookie_name].should be_nil
+        cookies[Bucket.cookie_name(:participations)].should be_nil
       end
 
       it 'should clear conversion state' do
@@ -179,7 +179,7 @@ describe Bucket::Frameworks::Rails::Filters do
           @test1.participate
           @test2.participate
           bucket_after_filters
-          cookie = cookies[Bucket.new_participation_cookie_name][:value]
+          cookie = cookies[Bucket.cookie_name(:participations)][:value]
           expected = [@test1.cookie_name, @test2.cookie_name].sort
           cookie.split(',').sort.should == expected
         end
@@ -200,7 +200,7 @@ describe Bucket::Frameworks::Rails::Filters do
         it 'should not write new participations to the new participations cookie' do
           @test1.participate
           bucket_after_filters
-          cookies[Bucket.new_participation_cookie_name][:value].should be_empty
+          cookies[Bucket.cookie_name(:participations)][:value].should be_empty
         end
       end
     end
@@ -211,7 +211,7 @@ describe Bucket::Frameworks::Rails::Filters do
         @test2.convert
         bucket_after_filters
 
-        cookie = cookies[Bucket.conversion_cookie_name][:value]
+        cookie = cookies[Bucket.cookie_name(:conversions)][:value]
         expected = [@test1.cookie_name, @test2.cookie_name].sort
         cookie.split(',').sort.should == expected
       end
