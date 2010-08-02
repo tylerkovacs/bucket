@@ -26,7 +26,7 @@ class Bucket
           def from_hash(hash)
             t = Bucket::Test.new
             hash.each do |key, value|
-              t.send(key, value) if t.respond_to?(key)
+              t.send(key, value, false) if t.respond_to?(key)
             end
             t
           end

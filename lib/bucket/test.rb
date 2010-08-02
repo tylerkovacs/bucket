@@ -38,11 +38,11 @@ class Bucket
     # Create get/set methods for all methods supported in the DSL.
     ATTRIBUTE_NAMES.each do |attribute_name|
       class_eval <<-EOF
-        def #{attribute_name}(value=MAGIC_DEFAULT_VALUE)
+        def #{attribute_name}(value=MAGIC_DEFAULT_VALUE, validation=true)
           if value != MAGIC_DEFAULT_VALUE
             @attributes['#{attribute_name}'] = value
             method = "validate_#{attribute_name}_attribute"
-            send(method) if respond_to?(method)
+            send(method) if respond_to?(method) && validation
           else
             @attributes['#{attribute_name}']
           end
