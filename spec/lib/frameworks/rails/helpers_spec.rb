@@ -66,5 +66,9 @@ describe Bucket::Frameworks::Rails::Helpers do
     it 'should initialize recorder with supplied key and options within javascript tag' do
       bucket_initialize_javascript('abcdef', {'foo' => 'bar'}).should == "Bucket.recorder.initialize({\n  foo: 'bar'\n  key: 'abcdef'\n});"
     end
+
+    it 'should allow cookie names to be passed in' do
+      bucket_initialize_javascript('abcdef', {'foo' => 'bar'}, {'participant' => 'test'}).should == "Bucket.recorder.initialize({\n  foo: 'bar'\n  key: 'abcdef'\n}, {\n  participant: 'test'\n});"
+    end
   end
 end

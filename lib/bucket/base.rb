@@ -59,6 +59,21 @@ class Bucket
       def clear_test_definitions!
         Bucket.store_proxy_cache.clear!
       end
+
+      def initialize_javascript(key, options={}, cookie_names={})
+        inner = [ "Bucket.recorder.initialize({" ]
+        options.merge({'key' => key}).each do |key, value|
+          inner << "  #{key}: '#{escape_javascript(value)}'"
+        end
+        if !cookie_names.empty?
+          inner << "}, {"
+          cookie_names.each do |key, value|
+            inner << "  #{key}: '#{escape_javascript(value)}'"
+          end
+        end
+        inner << "});"
+        inner.join("\n")
+      end
     end
   end
 end
