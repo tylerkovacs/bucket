@@ -312,8 +312,8 @@ describe Bucket::Test do
     end
 
     it 'should not change between calls' do
-      value = @test.participate
-      10.times { @test.participate.should == value }
+      value = @test.value
+      10.times { @test.value.should == value }
     end
   end
 

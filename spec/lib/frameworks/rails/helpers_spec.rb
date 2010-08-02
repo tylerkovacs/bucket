@@ -56,11 +56,22 @@ describe Bucket::Frameworks::Rails::Helpers do
 
   describe 'bucket_initialize_javascript' do
     it 'should initialize recorder with supplied key within javascript tag' do
-      bucket_initialize_javascript('abcdef').should == "Bucket.recorder.initialize({\n  key: 'abcdef'\n}, {\n  participant: 'bucket_participant'\n  participations: 'bucket_np'\n  conversions: 'bucket_conv'\n});"
+      js = bucket_initialize_javascript('abcdef')
+      js.should include("Bucket.recorder.initialize")
+      js.should include("key: 'abcdef'")
+      js.should include("participant: 'bucket_participant'")
+      js.should include("participations: 'bucket_np'")
+      js.should include("conversions: 'bucket_conv'")
     end
 
     it 'should initialize recorder with supplied key and options within javascript tag' do
-      bucket_initialize_javascript('abcdef', {'foo' => 'bar'}).should == "Bucket.recorder.initialize({\n  foo: 'bar'\n  key: 'abcdef'\n}, {\n  participant: 'bucket_participant'\n  participations: 'bucket_np'\n  conversions: 'bucket_conv'\n});"
+      js = bucket_initialize_javascript('abcdef', {'foo' => 'bar'})
+      js.should include("Bucket.recorder.initialize")
+      js.should include("key: 'abcdef'")
+      js.should include("participant: 'bucket_participant'")
+      js.should include("participations: 'bucket_np'")
+      js.should include("conversions: 'bucket_conv'")
+      js.should include("foo: 'bar'")
     end
   end
 end
