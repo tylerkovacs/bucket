@@ -127,6 +127,10 @@ class Bucket
       Bucket.participations[name]
     end
 
+    def convert
+      Bucket.conversions << self
+    end
+
     def participate_uncached
       if !@weights.empty?
         random = (0..values.length-1).to_a.inject(0.0) do |t,i| 

@@ -490,4 +490,19 @@ describe Bucket::Test do
       @test.paused?.should be_false
     end
   end
+
+  describe 'convert' do
+    it 'should add the test to Bucket.conversions' do
+      Bucket.conversions.should be_empty
+      @test.convert
+      Bucket.conversions.should == [@test]
+    end
+
+    it 'should be cleared by clear_all_but_test_definitions!' do
+      @test.convert
+      Bucket.conversions.should == [@test]
+      Bucket.clear_all_but_test_definitions!
+      Bucket.conversions.should be_empty
+    end
+  end
 end

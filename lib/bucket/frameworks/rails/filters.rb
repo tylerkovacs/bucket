@@ -40,6 +40,7 @@ class Bucket
           expiry_timestamp = Bucket::Test.cookie_expires
           bucket_persist_participant(expiry_timestamp)
           bucket_persist_participations(expiry_timestamp)
+          bucket_persist_conversions(expiry_timestamp)
         end
 
         def bucket_persist_participant(expiry_timestamp)
@@ -57,10 +58,24 @@ class Bucket
             }
           end
 
-          s = Bucket.new_participations.keys.map do |test_name| 
+          value = Bucket.new_participations.keys.map do |test_name| 
             Bucket::Test.get_test(test_name).cookie_name
           end.join(',')
-          cookies[Bucket.new_participation_cookie_name] = s if s && !s.empty?
+          cookies[Bucket.new_participation_cookie_name] = {
+            :value => value,
+            :expires => expiry_timestamp
+          }
+        end
+
+        def bucket_persist_conversions(expiry_timestamp)
+          value = Bucket.conversions.map do |test|
+            test.cookie_name
+          end.join(',')
+
+          cookies[Bucket.conversion_cookie_name] = {
+            :value => value,
+            :expires => expiry_timestamp
+          }
         end
       end
     end

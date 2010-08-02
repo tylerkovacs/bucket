@@ -6,8 +6,10 @@ class Bucket
     @@logger = Logger.new(STDOUT)
     @@participations = {}
     @@new_participations = {}
+    @@conversions = []
     @@participant_cookie_name = 'bucket_participant'
     @@new_participation_cookie_name = 'bucket_np'
+    @@conversion_cookie_name = 'bucket_conv'
     @@store = nil
     @@store_proxy_cache = Bucket::Store::CachingProxy.new(60)
 
@@ -21,6 +23,8 @@ class Bucket
       :new_participations,
       :participant_cookie_name,
       :new_participation_cookie_name,
+      :conversions,
+      :conversion_cookie_name
     ]
   
     def self.included(base)
@@ -48,6 +52,7 @@ class Bucket
       def clear_all_but_test_definitions!
         Bucket.participant = nil
         Bucket.participations.clear
+        Bucket.conversions.clear
         Bucket.new_participations.clear
       end
 

@@ -29,6 +29,12 @@ describe Bucket::Frameworks::Rails::Filters do
         bucket_before_filters
         cookies[Bucket.new_participation_cookie_name].should be_nil
       end
+
+      it 'should clear conversion state' do
+        Bucket.conversions = [1]
+        bucket_before_filters
+        Bucket.conversions.should == []
+      end
     end
 
     describe 'bucket_participant' do
@@ -173,7 +179,7 @@ describe Bucket::Frameworks::Rails::Filters do
           @test1.participate
           @test2.participate
           bucket_after_filters
-          cookie = cookies[Bucket.new_participation_cookie_name]
+          cookie = cookies[Bucket.new_participation_cookie_name][:value]
           expected = [@test1.cookie_name, @test2.cookie_name].sort
           cookie.split(',').sort.should == expected
         end
@@ -194,8 +200,20 @@ describe Bucket::Frameworks::Rails::Filters do
         it 'should not write new participations to the new participations cookie' do
           @test1.participate
           bucket_after_filters
-          cookies[Bucket.new_participation_cookie_name].should be_nil
+          cookies[Bucket.new_participation_cookie_name][:value].should be_empty
         end
+      end
+    end
+
+    describe 'bucket_persist_conversions' do
+      it 'should write conversions to the conversion cookie' do
+        @test1.convert
+        @test2.convert
+        bucket_after_filters
+
+        cookie = cookies[Bucket.conversion_cookie_name][:value]
+        expected = [@test1.cookie_name, @test2.cookie_name].sort
+        cookie.split(',').sort.should == expected
       end
     end
   end
