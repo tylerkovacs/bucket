@@ -71,6 +71,15 @@ describe Bucket::Test do
       t = @test.to_hash
       t.is_a?(Hash).should be_true
       t[:name].should == :test_name
+      t.keys.map{|k| k.to_s}.sort.should == Bucket::Test::ATTRIBUTE_NAMES.map{|k| k.to_s}.sort
+    end
+
+    it 'should only convert the requested fields to the hash' do
+      @test.stub!(:active?).and_return(true)
+      value = @test.participate
+      value.should_not be_nil
+      t = @test.to_hash({:include => [:name, :value]})
+      t.should == {:value=>value, :name=>:test_name}
     end
 
     it 'should be able to restore test from hash' do
