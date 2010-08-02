@@ -65,4 +65,21 @@ describe Bucket::Test do
       test.end_at.should == Time.parse('2010/07/20 05:00:00')
     end
   end
+
+  context 'hash' do
+    it 'should convert object to a hash' do
+      t = @test.to_hash
+      t.is_a?(Hash).should be_true
+      t[:name].should == :test_name
+    end
+
+    it 'should be able to restore test from hash' do
+      test = Bucket::Test.from_hash(@test.to_hash)
+      test.name.should == :test_name
+      test.values.should == [1, 'string', :red]
+      test.default.should == :red
+      test.start_at.should == Time.parse('2010/07/20 03:00:00')
+      test.end_at.should == Time.parse('2010/07/20 05:00:00')
+    end
+  end
 end

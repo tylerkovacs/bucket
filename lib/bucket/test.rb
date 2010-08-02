@@ -7,6 +7,7 @@ class Bucket
     include Bucket::Test::Serialization::Dsl
     include Bucket::Test::Serialization::Yaml
     include Bucket::Test::Serialization::Marshal
+    include Bucket::Test::Serialization::Hash
 
     class DuplicateTestNameException < StandardError; end
     class UnknownTestException < StandardError; end
