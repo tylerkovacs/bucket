@@ -61,6 +61,7 @@ class Bucket
           value = Bucket.new_participations.keys.map do |test_name| 
             Bucket::Test.get_test(test_name).cookie_name
           end.join(',')
+
           cookies[Bucket.cookie_name(:participations)] = {
             :value => value,
             :expires => expiry_timestamp
@@ -69,8 +70,10 @@ class Bucket
 
         def bucket_persist_conversions(expiry_timestamp)
           value = Bucket.conversions.map do |test|
-            test.cookie_name
-          end.join(',')
+            test.to_hash({:include => [:name, :value]})
+          end
+
+          value = Base64.b64encode(ActiveSupport::JSON.encode(value))
 
           cookies[Bucket.cookie_name(:conversions)] = {
             :value => value,

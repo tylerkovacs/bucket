@@ -207,13 +207,19 @@ describe Bucket::Frameworks::Rails::Filters do
 
     describe 'bucket_persist_conversions' do
       it 'should write conversions to the conversion cookie' do
+        @test1.participate
         @test1.convert
+        @test2.participate
         @test2.convert
         bucket_after_filters
 
         cookie = cookies[Bucket.cookie_name(:conversions)][:value]
         expected = [@test1.cookie_name, @test2.cookie_name].sort
-        cookie.split(',').sort.should == expected
+        cookie.length.should == 2
+        cookie.first[:name].should == @test1.name
+        cookie.first[:value].should == @test1.value
+        cookie.last[:name].should == @test2.name
+        cookie.last[:value].should == @test2.value
       end
     end
   end

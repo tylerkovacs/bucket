@@ -23,3 +23,20 @@ Spec::Runner.configure do |config|
   config.before(:all) { }
   config.after(:each) { }
 end
+
+# Mock classes that are used framework-specific features are used when the
+# framework is not available.  The unit tests are run without the framework
+# but still exercise some framework-specific features.
+class Base64
+  def self.b64encode(string)
+    string
+  end
+end
+
+class ActiveSupport
+  class JSON
+    def self.encode(value)
+      value
+    end
+  end
+end
